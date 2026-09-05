@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digit Terminal — Deriv Auto-Trading Bot</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --bg-base:#0A0E14;
+    --bg-panel:#10161F;
+    --bg-raised:#161D29;
+    --bg-hover:#1C2432;
+    --border:#232B38;
+    --border-soft:#1A2130;
+    --text-primary:#E7ECF2;
+    --text-secondary:#8593A6;
+    --text-dim:#576177;
+    --up:#2FD9A8;
+    --up-dim:#173E37;
+    --down:#FF5D6C;
+    --down-dim:#3E1E24;
+    --amber:#F2A93B;
+    --amber-dim:#3A2C15;
+    --blue:#5B9DFF;
+    --radius-sm:4px;
+    --radius-md:8px;
+    --font-ui:'Space Grotesk', sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:var(--bg-base);
+    color:var(--text-primary);
+    font-family:var(--font-ui);
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+
+  .app{ max-width:1180px; margin:0 auto; padding:20px 20px 60px; }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 18px; background:var(--bg-panel);
+    border:1px solid var(--border-soft); border-radius:var(--radius-md);
+    margin-bottom:16px; flex-wrap:wrap; gap:12px;
+  }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand-mark{
+    width:30px; height:30px; border-radius:6px;
+    background:linear-gradient(160deg,var(--up),var(--blue));
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono); font-weight:600; font-size:13px; color:#04110C;
+  }
+  .brand-name{ font-weight:600; font-size:15px; letter-spacing:0.2px; }
+  .brand-sub{ color:var(--text-dim); font-size:11.5px; font-family:var(--font-mono); }
+
+  .status-cluster{ display:flex; align-items:center; gap:22px; flex-wrap:wrap; }
+  .stat{ text-align:right; }
+  .stat-label{ font-size:10.5px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.06em; }
+  .stat-value{ font-family:var(--font-mono); font-size:16px; font-weight:600; margin-top:2px; }
+  .stat-value.pos{ color:var(--up); }
+  .stat-value.neg{ color:var(--down); }
+
+  .conn-pill{
+    display:flex; align-items:center; gap:7px; padding:6px 11px;
+    border-radius:20px; background:var(--bg-raised); border:1px solid var(--border);
+    font-size:12px; font-family:var(--font-mono); color:var(--text-secondary);
+  }
+  .dot{ width:7px; height:7px; border-radius:50%; background:var(--text-dim); }
+  .dot.live{ background:var(--up); box-shadow:0 0 0 3px var(--up-dim); }
+  .dot.err{ background:var(--down); box-shadow:0 0 0 3px var(--down-dim); }
+
+  /* ---------- Layout ---------- */
+  .grid{ display:grid; grid-template-columns:340px 1fr; gap:16px; }
+  @media (max-width:860px){ .grid{ grid-template-columns:1fr; } }
+
+  .panel{
+    background:var(--bg-panel); border:1px solid var(--border-soft);
+    border-radius:var(--radius-md); padding:18px;
+  }
+  .panel + .panel{ margin-top:16px; }
+  .panel-title{
+    font-size:12px; text-transform:uppercase; letter-spacing:0.08em;
+    color:var(--text-dim); margin:0 0 14px; display:flex; justify-content:space-between; align-items:center;
+  }
+
+  label{ display:block; font-size:12.5px; color:var(--text-secondary); margin:0 0 6px; }
+  .field{ margin-bottom:14px; }
+  .field:last-child{ margin-bottom:0; }
+
+  input[type=text], input[type=password], input[type=number], select{
+    width:100%; background:var(--bg-raised); border:1px solid var(--border);
+    color:var(--text-primary); padding:9px 10px; border-radius:var(--radius-sm);
+    font-family:var(--font-mono); font-size:13.5px; outline:none;
+    transition:border-color .15s;
+  }
+  input:focus, select:focus{ border-color:var(--blue); }
+  select{ appearance:none; cursor:pointer; }
+
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+  .segmented{ display:flex; background:var(--bg-raised); border:1px solid var(--border); border-radius:var(--radius-sm); padding:3px; gap:3px; }
+  .segmented button{
+    flex:1; padding:8px 6px; background:transparent; border:none; border-radius:3px;
+    color:var(--text-secondary); font-family:var(--font-ui); font-size:12.5px; font-weight:500;
+    cursor:pointer; transition:all .15s;
+  }
+  .segmented button.active{ background:var(--bg-hover); color:var(--text-primary); }
+  .segmented button.active.up{ color:var(--up); }
+  .segmented button.active.down{ color:var(--down); }
+
+  .strategy-tabs{ display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
+  .strategy-tab{
+    padding:7px 12px; border-radius:20px; border:1px solid var(--border);
+    background:var(--bg-raised); color:var(--text-secondary); font-size:12px;
+    font-family:var(--font-ui); cursor:pointer; transition:all .15s;
+  }
+  .strategy-tab.active{ border-color:var(--blue); color:var(--blue); background:rgba(91,157,255,0.08); }
+
+  .slider-row{ display:flex; align-items:center; gap:10px; }
+  input[type=range]{ flex:1; accent-color:var(--amber); }
+  .slider-val{ font-family:var(--font-mono); font-size:13px; color:var(--amber); min-width:40px; text-align:right; }
+
+  .hint{ font-size:11.5px; color:var(--text-dim); margin-top:6px; line-height:1.5; }
+
+  .btn{
+    width:100%; padding:12px; border-radius:var(--radius-sm); border:none;
+    font-family:var(--font-ui); font-weight:600; font-size:14px; cursor:pointer;
+    transition:filter .15s, transform .05s;
+  }
+  .btn:active{ transform:scale(0.99); }
+  .btn-start{ background:var(--up); color:#04110C; }
+  .btn-start:hover{ filter:brightness(1.08); }
+  .btn-stop{ background:var(--down); color:#1A0508; }
+  .btn-stop:hover{ filter:brightness(1.08); }
+  .btn-ghost{ background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); }
+  .btn-ghost:hover{ background:var(--bg-hover); }
+  .btn:disabled{ opacity:0.4; cursor:not-allowed; }
+
+  /* ---------- Digit histogram ---------- */
+  .digit-grid{ display:grid; grid-template-columns:repeat(10,1fr); gap:6px; align-items:end; height:130px; margin:6px 0 4px; }
+  .digit-col{ display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
+  .digit-bar{ width:100%; background:var(--bg-hover); border-radius:3px 3px 0 0; transition:height .3s ease; min-height:3px; }
+  .digit-bar.even{ background:var(--up); }
+  .digit-bar.odd{ background:var(--down); }
+  .digit-label{ font-family:var(--font-mono); font-size:11px; color:var(--text-dim); margin-top:6px; }
+  .digit-pct{ font-family:var(--font-mono); font-size:9.5px; color:var(--text-dim); margin-bottom:4px; }
+
+  .tick-tape{
+    display:flex; gap:5px; overflow-x:auto; padding:10px 0; scrollbar-width:none;
+  }
+  .tick-tape::-webkit-scrollbar{ display:none; }
+  .tick-chip{
+    flex:0 0 auto; width:26px; height:26px; border-radius:6px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono); font-size:12px; font-weight:600;
+    background:var(--bg-raised); color:var(--text-secondary); border:1px solid var(--border-soft);
+  }
+  .tick-chip.even{ color:var(--up); border-color:var(--up-dim); }
+  .tick-chip.odd{ color:var(--down); border-color:var(--down-dim); }
+
+  .signal-banner{
+    display:flex; align-items:center; gap:10px; padding:11px 14px;
+    border-radius:var(--radius-sm); margin-bottom:14px; font-size:13px;
+    background:var(--bg-raised); border:1px solid var(--border); color:var(--text-secondary);
+  }
+  .signal-banner.armed{ border-color:var(--amber); background:var(--amber-dim); color:#F5D9A0; }
+  .signal-banner.fired-up{ border-color:var(--up); background:var(--up-dim); color:#B7F3E1; }
+  .signal-banner.fired-down{ border-color:var(--down); background:var(--down-dim); color:#FFC6CC; }
+
+  /* ---------- Log ---------- */
+  .log-table{ width:100%; border-collapse:collapse; font-family:var(--font-mono); font-size:12.5px; }
+  .log-table th{
+    text-align:left; color:var(--text-dim); font-weight:500; font-size:10.5px;
+    text-transform:uppercase; letter-spacing:0.05em; padding:0 8px 8px; border-bottom:1px solid var(--border-soft);
+  }
+  .log-table td{ padding:8px; border-bottom:1px solid var(--border-soft); color:var(--text-secondary); }
+  .log-table tr:last-child td{ border-bottom:none; }
+  .log-empty{ color:var(--text-dim); text-align:center; padding:24px 0; font-family:var(--font-ui); font-size:13px; }
+  .pill{ padding:2px 7px; border-radius:20px; font-size:11px; font-weight:600; }
+  .pill.win{ background:var(--up-dim); color:var(--up); }
+  .pill.loss{ background:var(--down-dim); color:var(--down); }
+
+  .warning-box{
+    background:var(--amber-dim); border:1px solid #5A431C; color:#F5D9A0;
+    border-radius:var(--radius-sm); padding:12px 14px; font-size:12.5px; line-height:1.55;
+    margin-bottom:16px;
+  }
+  .warning-box b{ color:var(--amber); }
+
+  .footer-note{ color:var(--text-dim); font-size:11.5px; text-align:center; margin-top:26px; line-height:1.6; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">DZ</div>
+      <div>
+        <div class="brand-name">Digit Terminal</div>
+        <div class="brand-sub">deriv synthetic index auto-trader</div>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <div class="stat">
+        <div class="stat-label">Balance</div>
+        <div class="stat-value" id="statBalance">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Session P/L</div>
+        <div class="stat-value" id="statPL">$0.00</div>
+      </div>
+      <div class="conn-pill"><span class="dot" id="connDot"></span><span id="connText">Disconnected</span></div>
+    </div>
+  </div>
+
+  <div class="warning-box">
+    <b>Before you start:</b> this bot trades real or demo funds on your Deriv account based on statistical digit-frequency signals. It does not guarantee profit — synthetic index outcomes are randomised and past digit patterns don't predict future ones. Use your Deriv API token, start with a demo account, and never risk money you can't afford to lose.
+  </div>
+
+  <div class="grid">
+    <!-- LEFT: CONFIG -->
+    <div>
+      <div class="panel">
+        <div class="panel-title">Connection</div>
+        <div class="field">
+          <label for="oauthAppId">Your Deriv App ID</label>
+          <input type="text" id="oauthAppId" placeholder="Get one at api.deriv.com/dashboard">
+          <div class="hint">Needed for both login options below. Register a free app at <b>api.deriv.com/dashboard</b> — for OAuth login, also set that app's Redirect URL to match wherever this page is hosted.</div>
+        </div>
+        <button class="btn btn-ghost" id="btnOauthLogin" style="margin-bottom:10px;">Log in with Deriv</button>
+        <div class="hint" style="text-align:center;margin:8px 0;">— or —</div>
+        <div class="field">
+          <label for="apiToken">Paste API token manually</label>
+          <input type="password" id="apiToken" placeholder="Paste your read/trade token">
+        </div>
+        <button class="btn btn-ghost" id="btnConnect">Connect with token</button>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Market</div>
+        <div class="field">
+          <label for="symbolSelect">Volatility index</label>
+          <select id="symbolSelect">
+            <option value="R_10">Volatility 10 Index</option>
+            <option value="R_25">Volatility 25 Index</option>
+            <option value="R_50">Volatility 50 Index</option>
+            <option value="R_75" selected>Volatility 75 Index</option>
+            <option value="R_100">Volatility 100 Index</option>
+            <option value="1HZ10V">Volatility 10 (1s) Index</option>
+            <option value="1HZ25V">Volatility 25 (1s) Index</option>
+            <option value="1HZ50V">Volatility 50 (1s) Index</option>
+            <option value="1HZ75V">Volatility 75 (1s) Index</option>
+            <option value="1HZ100V">Volatility 100 (1s) Index</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Strategy</div>
+        <div class="strategy-tabs" id="strategyTabs">
+          <div class="strategy-tab active" data-strategy="evenodd">Even / Odd</div>
+          <div class="strategy-tab" data-strategy="overunder">Over / Under</div>
+          <div class="strategy-tab" data-strategy="matchdiffer">Matches / Differs</div>
+        </div>
+
+        <div id="strategyExtra"></div>
+
+        <div class="field">
+          <label>Confidence threshold — how far digit frequency must drift from expected before the bot trades</label>
+          <div class="slider-row">
+            <input type="range" id="confSlider" min="52" max="85" value="62">
+            <div class="slider-val" id="confVal">62%</div>
+          </div>
+          <div class="hint">Higher = fewer, more selective trades. Lower = more frequent trades on smaller edges.</div>
+        </div>
+
+        <div class="field">
+          <label for="lookback">Tick lookback window</label>
+          <input type="number" id="lookback" value="100" min="20" max="1000" step="10">
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Stake &amp; risk</div>
+        <div class="row2">
+          <div class="field">
+            <label for="stakeInput">Base stake per trade (USD)</label>
+            <input type="number" id="stakeInput" value="1" min="0.35" step="0.01">
+          </div>
+          <div class="field">
+            <label for="durationInput">Duration (ticks)</label>
+            <input type="number" id="durationInput" value="1" min="1" max="10">
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="profitTarget">Daily profit target (USD)</label>
+            <input type="number" id="profitTarget" value="5000" min="0" step="1">
+          </div>
+          <div class="field">
+            <label for="lossLimit">Daily loss limit (%)</label>
+            <input type="number" id="lossLimit" value="2" min="0.5" max="50" step="0.5">
+          </div>
+        </div>
+        <div class="hint">The bot auto-stops for the day once either limit is hit. Loss limit is calculated against your balance at session start.</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">
+          <span>Martingale recovery</span>
+          <label style="display:flex;align-items:center;gap:6px;margin:0;font-size:12px;color:var(--text-secondary);">
+            <input type="checkbox" id="martingaleToggle" style="width:auto;">On
+          </label>
+        </div>
+        <div id="martingaleFields" style="display:none;">
+          <div class="row2">
+            <div class="field">
+              <label for="martMultiplier">Multiplier after a loss</label>
+              <input type="number" id="martMultiplier" value="2" min="1.1" max="5" step="0.1">
+            </div>
+            <div class="field">
+              <label for="martMaxSteps">Max consecutive losses</label>
+              <input type="number" id="martMaxSteps" value="5" min="1" max="10">
+            </div>
+          </div>
+          <div class="hint">
+            After a loss, the next stake is multiplied to try to recover it plus a small profit on the next win.
+            Stake resets to base after any win, or after hitting the max consecutive losses cap — whichever comes
+            first, the bot stops trading for the day. <b style="color:var(--amber)">Stake grows fast in a losing
+            streak</b> (e.g. $1 → $2 → $4 → $8 → $16 → $32 at 2x over 5 losses) — this does not prevent losses,
+            it resizes them. Set the cap conservatively.
+          </div>
+        </div>
+        <div class="hint" id="martingaleOffHint">Off by default. Each trade uses the fixed base stake above.</div>
+      </div>
+
+      <div class="panel">
+        <button class="btn btn-start" id="btnStart" disabled>Start bot</button>
+        <button class="btn btn-stop" id="btnStop" style="display:none;">Stop bot</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: LIVE -->
+    <div>
+      <div class="panel">
+        <div class="panel-title">
+          <span>Live digit distribution</span>
+          <span id="tickCount" style="font-family:var(--font-mono); font-weight:500; color:var(--text-dim);">0 ticks</span>
+        </div>
+        <div class="digit-grid" id="digitGrid"></div>
+        <div class="tick-tape" id="tickTape"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Signal</div>
+        <div class="signal-banner" id="signalBanner">Waiting for enough tick data to evaluate a signal…</div>
+        <div class="hint" id="signalDetail"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">
+          <span>Trade log</span>
+          <span id="tradeCount" style="font-family:var(--font-mono); font-weight:500; color:var(--text-dim);">0 trades</span>
+        </div>
+        <div id="logWrap">
+          <div class="log-empty">No trades yet this session</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    Built for Deriv synthetic indices only · Digit Terminal is a tool, not financial advice · Always test on a demo account first
+  </div>
+</div>
+
+<script>
+(function(){
+  // ---------------- State ----------------
+  const state = {
+    ws:null, authorized:false,
+    balance:null, currency:'USD', sessionStartBalance:null,
+    sessionPL:0, tradesToday:0,
+    ticks:[], // {digit, ts}
+    strategy:'evenodd',
+    running:false,
+    pendingProposal:false,
+    lastSignal:null,
+    tradeLog:[],
+    martingale:{ active:false, currentStake:null, consecutiveLosses:0 }
+  };
+
+  const els = {
+    apiToken: document.getElementById('apiToken'),
+    appId: document.getElementById('oauthAppId'),
+    btnOauthLogin: document.getElementById('btnOauthLogin'),
+    btnConnect: document.getElementById('btnConnect'),
+    connDot: document.getElementById('connDot'),
+    connText: document.getElementById('connText'),
+    statBalance: document.getElementById('statBalance'),
+    statPL: document.getElementById('statPL'),
+    symbolSelect: document.getElementById('symbolSelect'),
+    strategyTabs: document.getElementById('strategyTabs'),
+    strategyExtra: document.getElementById('strategyExtra'),
+    confSlider: document.getElementById('confSlider'),
+    confVal: document.getElementById('confVal'),
+    lookback: document.getElementById('lookback'),
+    stakeInput: document.getElementById('stakeInput'),
+    durationInput: document.getElementById('durationInput'),
+    profitTarget: document.getElementById('profitTarget'),
+    lossLimit: document.getElementById('lossLimit'),
+    martingaleToggle: document.getElementById('martingaleToggle'),
+    martingaleFields: document.getElementById('martingaleFields'),
+    martingaleOffHint: document.getElementById('martingaleOffHint'),
+    martMultiplier: document.getElementById('martMultiplier'),
+    martMaxSteps: document.getElementById('martMaxSteps'),
+    btnStart: document.getElementById('btnStart'),
+    btnStop: document.getElementById('btnStop'),
+    digitGrid: document.getElementById('digitGrid'),
+    tickTape: document.getElementById('tickTape'),
+    tickCount: document.getElementById('tickCount'),
+    signalBanner: document.getElementById('signalBanner'),
+    signalDetail: document.getElementById('signalDetail'),
+    logWrap: document.getElementById('logWrap'),
+    tradeCount: document.getElementById('tradeCount'),
+  };
+
+  // ---------------- Strategy extra fields ----------------
+  function renderStrategyExtra(){
+    if(state.strategy === 'overunder'){
+      els.strategyExtra.innerHTML = `
+        <div class="field">
+          <label for="barrierInput">Barrier digit (0–9)</label>
+          <input type="number" id="barrierInput" value="5" min="1" max="8">
+        </div>`;
+    } else if(state.strategy === 'matchdiffer'){
+      els.strategyExtra.innerHTML = `
+        <div class="field">
+          <label>Target digit</label>
+          <div class="hint">Auto-selected each cycle as the current least-frequent digit in the lookback window.</div>
+        </div>`;
+    } else {
+      els.strategyExtra.innerHTML = '';
+    }
+  }
+  renderStrategyExtra();
+
+  els.strategyTabs.querySelectorAll('.strategy-tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      els.strategyTabs.querySelectorAll('.strategy-tab').forEach(t=>t.classList.remove('active'));
+      tab.classList.add('active');
+      state.strategy = tab.dataset.strategy;
+      renderStrategyExtra();
+      evaluateSignal();
+    });
+  });
+
+  els.confSlider.addEventListener('input', ()=>{
+    els.confVal.textContent = els.confSlider.value + '%';
+    evaluateSignal();
+  });
+
+  els.martingaleToggle.addEventListener('change', ()=>{
+    const on = els.martingaleToggle.checked;
+    els.martingaleFields.style.display = on ? 'block' : 'none';
+    els.martingaleOffHint.style.display = on ? 'none' : 'block';
+  });
+
+  // ---------------- OAuth login ----------------
+  function startOauthLogin(){
+    const appId = els.appId.value.trim();
+    if(!appId){
+      alert('Enter your Deriv App ID first (get one at api.deriv.com/dashboard).');
+      return;
+    }
+    const redirectUri = window.location.href.split('?')[0].split('#')[0];
+    const url = `https://oauth.deriv.com/oauth2/authorize?app_id=${appId}&l=EN&redirect_uri=${encodeURIComponent(redirectUri)}`;
+    window.location.href = url;
+  }
+
+  function checkOauthReturn(){
+    // Deriv appends acct1/token1/cur1 (and acct2/token2... for multiple accounts) as query params on redirect back.
+    const params = new URLSearchParams(window.location.search);
+    const token1 = params.get('token1');
+    if(token1){
+      els.apiToken.value = token1;
+      // Clean the URL so the token isn't left visible/reloadable from browser history.
+      const cleanUrl = window.location.href.split('?')[0];
+      window.history.replaceState({}, document.title, cleanUrl);
+      connect();
+    }
+  }
+
+  els.btnOauthLogin.addEventListener('click', startOauthLogin);
+
+  // ---------------- WebSocket ----------------
+  function connect(){
+    const appId = els.appId.value.trim() || '1089';
+    const token = els.apiToken.value.trim();
+    setConn('connecting', 'Connecting…');
+
+    state.ws = new WebSocket(`wss://ws.derivws.com/websockets/v3?app_id=${appId}&l=EN`);
+
+    state.ws.onopen = ()=>{
+      if(token){
+        send({ authorize: token });
+      } else {
+        setConn('err', 'Token required');
+      }
+    };
+
+    state.ws.onmessage = (msg)=>{
+      const data = JSON.parse(msg.data);
+      handleMessage(data);
+    };
+
+    state.ws.onerror = ()=>{
+      setConn('err', 'Connection error');
+    };
+
+    state.ws.onclose = ()=>{
+      setConn('idle', 'Disconnected');
+      state.authorized = false;
+      els.btnStart.disabled = true;
+      stopBot();
+    };
+  }
+
+  function send(obj){
+    if(state.ws && state.ws.readyState === WebSocket.OPEN){
+      state.ws.send(JSON.stringify(obj));
+    }
+  }
+
+  function setConn(mode, text){
+    els.connText.textContent = text;
+    els.connDot.className = 'dot' + (mode==='live' ? ' live' : mode==='err' ? ' err' : '');
+  }
+
+  function handleMessage(data){
+    if(data.error){
+      console.error('Deriv API error:', data.error.message);
+      if(data.msg_type === 'authorize'){ setConn('err', data.error.message); }
+      if(data.msg_type === 'buy'){ logTrade({error:true, message:data.error.message}); }
+      return;
+    }
+
+    switch(data.msg_type){
+      case 'authorize':
+        state.authorized = true;
+        state.currency = data.authorize.currency;
+        setConn('live', 'Connected · ' + data.authorize.loginid);
+        send({ balance:1, subscribe:1 });
+        subscribeTicks();
+        els.btnStart.disabled = false;
+        break;
+
+      case 'balance':
+        state.balance = data.balance.balance;
+        if(state.sessionStartBalance === null) state.sessionStartBalance = state.balance;
+        renderBalance();
+        break;
+
+      case 'tick':
+        onTick(data.tick);
+        break;
+
+      case 'buy':
+        state.pendingProposal = false;
+        logTrade({
+          contract: data.buy.longcode || data.buy.shortcode,
+          buyPrice: data.buy.buy_price,
+          stakeUsed: data.buy.buy_price,
+          contractId: data.buy.contract_id
+        });
+        // subscribe for contract outcome
+        send({ proposal_open_contract:1, contract_id:data.buy.contract_id, subscribe:1 });
+        break;
+
+      case 'proposal_open_contract':
+        const c = data.proposal_open_contract;
+        if(c.is_sold){
+          settleTrade(c.contract_id, c.profit);
+        }
+        break;
+    }
+  }
+
+  function subscribeTicks(){
+    state.ticks = [];
+    renderTickUI();
+    send({ ticks: els.symbolSelect.value, subscribe: 1 });
+  }
+
+  els.symbolSelect.addEventListener('change', ()=>{
+    send({ forget_all: 'ticks' });
+    subscribeTicks();
+  });
+
+  function renderBalance(){
+    els.statBalance.textContent = state.balance !== null
+      ? state.balance.toFixed(2) + ' ' + state.currency
+      : '—';
+    const pl = state.sessionPL;
+    els.statPL.textContent = (pl>=0?'+':'') + '$' + pl.toFixed(2);
+    els.statPL.className = 'stat-value ' + (pl>0?'pos':pl<0?'neg':'');
+  }
+
+  // ---------------- Tick handling ----------------
+  function lastDigitFromQuote(quoteStr, pipSize){
+    // pipSize like 0.01 => 2 decimals, 0.001 => 3 decimals
+    const decimals = pipSize ? Math.round(-Math.log10(pipSize)) : 2;
+    const fixed = Number(quoteStr).toFixed(decimals);
+    return Number(fixed.slice(-1));
+  }
+
+  function onTick(tick){
+    const digit = lastDigitFromQuote(tick.quote, tick.pip_size);
+    state.ticks.push(digit);
+    const maxLen = Math.max(20, Number(els.lookback.value) || 100);
+    if(state.ticks.length > maxLen) state.ticks.shift();
+
+    renderTickUI();
+    evaluateSignal();
+
+    if(state.running) maybeTrade();
+  }
+
+  function renderTickUI(){
+    els.tickCount.textContent = state.ticks.length + ' ticks';
+
+    // histogram
+    const counts = Array(10).fill(0);
+    state.ticks.forEach(d=>counts[d]++);
+    const total = state.ticks.length || 1;
+    els.digitGrid.innerHTML = '';
+    counts.forEach((c,d)=>{
+      const pct = (c/total*100);
+      const col = document.createElement('div');
+      col.className = 'digit-col';
+      col.innerHTML = `
+        <div class="digit-pct">${state.ticks.length? pct.toFixed(0)+'%':''}</div>
+        <div class="digit-bar ${d%2===0?'even':'odd'}" style="height:${Math.max(3,pct)}%;"></div>
+        <div class="digit-label">${d}</div>`;
+      els.digitGrid.appendChild(col);
+    });
+
+    // tape (last 25)
+    els.tickTape.innerHTML = '';
+    state.ticks.slice(-25).forEach(d=>{
+      const chip = document.createElement('div');
+      chip.className = 'tick-chip ' + (d%2===0?'even':'odd');
+      chip.textContent = d;
+      els.tickTape.appendChild(chip);
+    });
+    els.tickTape.scrollLeft = els.tickTape.scrollWidth;
+  }
+
+  // ---------------- Signal engine ----------------
+  function evaluateSignal(){
+    const minTicks = 20;
+    if(state.ticks.length < minTicks){
+      setSignal('idle', `Waiting for at least ${minTicks} ticks (have ${state.ticks.length})…`, '');
+      state.lastSignal = null;
+      return;
+    }
+
+    const threshold = Number(els.confSlider.value) / 100;
+    const counts = Array(10).fill(0);
+    state.ticks.forEach(d=>counts[d]++);
+    const n = state.ticks.length;
+
+    if(state.strategy === 'evenodd'){
+      const evenCount = counts.filter((_,d)=>d%2===0).reduce((a,b)=>a+b,0);
+      const evenPct = evenCount/n;
+      const oddPct = 1-evenPct;
+      if(evenPct >= threshold){
+        state.lastSignal = { side:'DIGITODD', label:'ODD', reason:`Even digits at ${(evenPct*100).toFixed(1)}% — trading the underrepresented side (Odd)` };
+        setSignal('armed', 'Signal armed: ODD', state.lastSignal.reason);
+      } else if(oddPct >= threshold){
+        state.lastSignal = { side:'DIGITEVEN', label:'EVEN', reason:`Odd digits at ${(oddPct*100).toFixed(1)}% — trading the underrepresented side (Even)` };
+        setSignal('armed', 'Signal armed: EVEN', state.lastSignal.reason);
+      } else {
+        state.lastSignal = null;
+        setSignal('idle', `No edge yet — Even ${(evenPct*100).toFixed(1)}% / Odd ${(oddPct*100).toFixed(1)}%, need ${(threshold*100).toFixed(0)}%`, '');
+      }
+
+    } else if(state.strategy === 'overunder'){
+      const barrier = Number(document.getElementById('barrierInput')?.value || 5);
+      const overCount = counts.filter((_,d)=>d>barrier).reduce((a,b)=>a+b,0);
+      const underCount = counts.filter((_,d)=>d<barrier).reduce((a,b)=>a+b,0);
+      const relevant = overCount+underCount || 1;
+      const overPct = overCount/relevant, underPct = underCount/relevant;
+      if(overPct >= threshold){
+        state.lastSignal = { side:'DIGITUNDER', label:`UNDER ${barrier}`, barrier, reason:`Over-${barrier} at ${(overPct*100).toFixed(1)}% — trading Under (mean reversion)` };
+        setSignal('armed', `Signal armed: UNDER ${barrier}`, state.lastSignal.reason);
+      } else if(underPct >= threshold){
+        state.lastSignal = { side:'DIGITOVER', label:`OVER ${barrier}`, barrier, reason:`Under-${barrier} at ${(underPct*100).toFixed(1)}% — trading Over (mean reversion)` };
+        setSignal('armed', `Signal armed: OVER ${barrier}`, state.lastSignal.reason);
+      } else {
+        state.lastSignal = null;
+        setSignal('idle', `No edge yet — Over ${(overPct*100).toFixed(1)}% / Under ${(underPct*100).toFixed(1)}%, need ${(threshold*100).toFixed(0)}%`, '');
+      }
+
+    } else if(state.strategy === 'matchdiffer'){
+      let minD=0; for(let d=1;d<10;d++) if(counts[d]<counts[minD]) minD=d;
+      const minPct = counts[minD]/n;
+      const expected = 1/10;
+      if((expected - minPct) >= (threshold-0.5)*0.2 || minPct <= (expected*(1.5-threshold+0.5))){
+        state.lastSignal = { side:'DIGITDIFF', label:`DIFFERS ${minD}`, barrier:minD, reason:`Digit ${minD} is under-represented at ${(minPct*100).toFixed(1)}% — trading Differs (expect it to keep differing)` };
+        setSignal('armed', `Signal armed: DIFFERS ${minD}`, state.lastSignal.reason);
+      } else {
+        state.lastSignal = null;
+        setSignal('idle', `No clear outlier digit yet (least frequent: ${minD} at ${(minPct*100).toFixed(1)}%)`, '');
+      }
+    }
+  }
+
+  function setSignal(mode, headline, detail){
+    els.signalBanner.className = 'signal-banner' + (mode==='armed' ? ' armed' : '');
+    els.signalBanner.textContent = headline;
+    els.signalDetail.textContent = detail;
+  }
+
+  // ---------------- Risk & trading ----------------
+  function withinRisk(){
+    const target = Number(els.profitTarget.value);
+    const lossPct = Number(els.lossLimit.value);
+    if(target > 0 && state.sessionPL >= target) return {ok:false, reason:'Daily profit target reached'};
+    if(state.sessionStartBalance){
+      const lossLimitAmt = state.sessionStartBalance * (lossPct/100);
+      if(state.sessionPL <= -lossLimitAmt) return {ok:false, reason:'Daily loss limit reached'};
+    }
+    return {ok:true};
+  }
+
+  function maybeTrade(){
+    if(state.pendingProposal) return;
+    if(!state.lastSignal) return;
+    const risk = withinRisk();
+    if(!risk.ok){
+      stopBot();
+      setSignal('idle', 'Bot stopped: ' + risk.reason, '');
+      return;
+    }
+
+    const baseStake = Number(els.stakeInput.value);
+    const stake = els.martingaleToggle.checked && state.martingale.currentStake !== null
+      ? state.martingale.currentStake
+      : baseStake;
+    const duration = Number(els.durationInput.value);
+    const params = {
+      buy: 1,
+      price: stake,
+      parameters: {
+        amount: stake,
+        basis: 'stake',
+        contract_type: state.lastSignal.side,
+        currency: state.currency,
+        duration: duration,
+        duration_unit: 't',
+        symbol: els.symbolSelect.value
+      }
+    };
+    if(state.lastSignal.barrier !== undefined){
+      params.parameters.barrier = String(state.lastSignal.barrier);
+    }
+    state.pendingProposal = true;
+    send(params);
+    if(els.martingaleToggle.checked){
+      const label = state.martingale.currentStake !== null
+        ? ` · Martingale stake: $${stake.toFixed(2)} (loss streak: ${state.martingale.consecutiveLosses})`
+        : ` · Martingale stake: $${stake.toFixed(2)} (base)`;
+      els.signalDetail.textContent += label;
+    }
+  }
+
+  function logTrade(entry){
+    state.tradeLog.unshift({ ...entry, ts:new Date(), status:'open' });
+    state.tradesToday++;
+    renderLog();
+  }
+
+  function settleTrade(contractId, profit){
+    const row = state.tradeLog.find(t=>t.contractId===contractId);
+    const stakeUsed = row ? row.stakeUsed : Number(els.stakeInput.value);
+    if(row){
+      row.status = profit>=0 ? 'win' : 'loss';
+      row.profit = profit;
+    }
+    state.sessionPL += Number(profit);
+    renderBalance();
+    renderLog();
+
+    if(els.martingaleToggle.checked){
+      const baseStake = Number(els.stakeInput.value);
+      const mult = Number(els.martMultiplier.value);
+      const maxSteps = Number(els.martMaxSteps.value);
+      if(profit >= 0){
+        // win resets the ladder
+        state.martingale.currentStake = null;
+        state.martingale.consecutiveLosses = 0;
+      } else {
+        state.martingale.consecutiveLosses++;
+        if(state.martingale.consecutiveLosses >= maxSteps){
+          // cap reached — reset ladder and stop, don't keep escalating
+          state.martingale.currentStake = null;
+          state.martingale.consecutiveLosses = 0;
+          if(state.running){
+            stopBot();
+            setSignal('idle', `Bot stopped: hit max consecutive losses (${maxSteps}) on the Martingale ladder`, '');
+          }
+        } else {
+          const nextStake = Math.abs(stakeUsed) * mult;
+          state.martingale.currentStake = Math.round(nextStake * 100) / 100;
+        }
+      }
+    }
+
+    const risk = withinRisk();
+    if(!risk.ok && state.running){
+      stopBot();
+      setSignal('idle', 'Bot stopped: ' + risk.reason, '');
+    }
+  }
+
+  function renderLog(){
+    els.tradeCount.textContent = state.tradesToday + ' trades';
+    if(state.tradeLog.length === 0){
+      els.logWrap.innerHTML = '<div class="log-empty">No trades yet this session</div>';
+      return;
+    }
+    let rows = state.tradeLog.slice(0,30).map(t=>{
+      const time = t.ts.toLocaleTimeString();
+      if(t.error){
+        return `<tr><td>${time}</td><td colspan="2" style="color:var(--down)">${t.message}</td></tr>`;
+      }
+      const pillHtml = t.status==='open' ? '<span class="pill" style="background:var(--bg-hover);color:var(--text-secondary)">open</span>'
+        : t.status==='win' ? `<span class="pill win">+$${Number(t.profit).toFixed(2)}</span>`
+        : `<span class="pill loss">$${Number(t.profit).toFixed(2)}</span>`;
+      return `<tr><td>${time}</td><td>${t.contract || ''}</td><td>${pillHtml}</td></tr>`;
+    }).join('');
+    els.logWrap.innerHTML = `<table class="log-table"><thead><tr><th>Time</th><th>Contract</th><th>Result</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+
+  // ---------------- Start / stop ----------------
+  function startBot(){
+    if(!state.authorized) return;
+    state.running = true;
+    state.sessionStartBalance = state.balance;
+    state.martingale.currentStake = null;
+    state.martingale.consecutiveLosses = 0;
+    els.btnStart.style.display = 'none';
+    els.btnStop.style.display = 'block';
+    [els.symbolSelect,...els.strategyTabs.querySelectorAll('.strategy-tab')].forEach(el=>el.style.pointerEvents='none');
+  }
+
+  function stopBot(){
+    state.running = false;
+    els.btnStart.style.display = 'block';
+    els.btnStop.style.display = 'none';
+    [els.symbolSelect,...els.strategyTabs.querySelectorAll('.strategy-tab')].forEach(el=>el.style.pointerEvents='auto');
+  }
+
+  els.btnConnect.addEventListener('click', connect);
+  els.btnStart.addEventListener('click', startBot);
+  els.btnStop.addEventListener('click', stopBot);
+
+  renderTickUI();
+  renderLog();
+  checkOauthReturn();
+})();
+</script>
+</body>
+</html>
