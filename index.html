@@ -486,27 +486,115 @@
     els.martingaleOffHint.style.display = on ? 'none' : 'block';
   });
 
-  // ---------------- OAuth login ----------------
-  function startOauthLogin(){
+  // ---------------- OAuth login (OAuth2 + PKCE) ----------------
+  const OAUTH_AUTHORIZE_URL = 'https://oauth.deriv.com/oauth2/authorize';
+  const OAUTH_TOKEN_URL = 'https://auth.deriv.com/oauth2/token';
+  const OAUTH_SCOPE = 'trade';
+
+  function base64UrlEncode(buffer){
+    let str = '';
+    const bytes = new Uint8Array(buffer);
+    for(let i=0;i<bytes.byteLength;i++) str += String.fromCharCode(bytes[i]);
+    return btoa(str).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  }
+
+  function randomString(length){
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+    const array = new Uint8Array(length);
+    crypto.getRandomValues(array);
+    return Array.from(array).map(v => chars[v % chars.length]).join('');
+  }
+
+  async function sha256Base64Url(input){
+    const encoder = new TextEncoder();
+    const data = encoder.encode(input);
+    const digest = await crypto.subtle.digest('SHA-256', data);
+    return base64UrlEncode(digest);
+  }
+
+  async function startOauthLogin(){
     const appId = els.appId.value.trim();
     if(!appId){
-      alert('Enter your Deriv App ID first (get one at api.deriv.com/dashboard).');
+      alert('Missing App ID in the code — contact the developer.');
       return;
     }
     const redirectUri = window.location.href.split('?')[0].split('#')[0];
-    const url = `https://oauth.deriv.com/oauth2/authorize?app_id=${appId}&l=EN&redirect_uri=${encodeURIComponent(redirectUri)}`;
-    window.location.href = url;
+    const codeVerifier = randomString(64);
+    const state = randomString(24);
+    const codeChallenge = await sha256Base64Url(codeVerifier);
+
+    sessionStorage.setItem('dz_pkce_verifier', codeVerifier);
+    sessionStorage.setItem('dz_oauth_state', state);
+
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: appId,
+      redirect_uri: redirectUri,
+      scope: OAUTH_SCOPE,
+      state: state,
+      code_challenge: codeChallenge,
+      code_challenge_method: 'S256'
+    });
+
+    window.location.href = `${OAUTH_AUTHORIZE_URL}?${params.toString()}`;
+  }
+
+  async function exchangeCodeForToken(code){
+    const appId = els.appId.value.trim();
+    const redirectUri = window.location.href.split('?')[0].split('#')[0];
+    const codeVerifier = sessionStorage.getItem('dz_pkce_verifier');
+    if(!codeVerifier){
+      setConn('err', 'Login session expired — try logging in again');
+      return;
+    }
+    try{
+      const resp = await fetch(OAUTH_TOKEN_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          grant_type: 'authorization_code',
+          client_id: appId,
+          code: code,
+          redirect_uri: redirectUri,
+          code_verifier: codeVerifier
+        })
+      });
+      const data = await resp.json();
+      if(data.access_token){
+        els.apiToken.value = data.access_token;
+        sessionStorage.removeItem('dz_pkce_verifier');
+        sessionStorage.removeItem('dz_oauth_state');
+        connect();
+      } else {
+        setConn('err', 'Login failed: ' + (data.error_description || data.error || 'unknown error'));
+        console.error('Token exchange failed:', data);
+      }
+    } catch(err){
+      setConn('err', 'Login request failed — see console');
+      console.error('Token exchange error:', err);
+    }
   }
 
   function checkOauthReturn(){
-    // Deriv appends acct1/token1/cur1 (and acct2/token2... for multiple accounts) as query params on redirect back.
     const params = new URLSearchParams(window.location.search);
-    const token1 = params.get('token1');
-    if(token1){
-      els.apiToken.value = token1;
-      // Clean the URL so the token isn't left visible/reloadable from browser history.
-      const cleanUrl = window.location.href.split('?')[0];
-      window.history.replaceState({}, document.title, cleanUrl);
+    const code = params.get('code');
+    const returnedState = params.get('state');
+    const savedState = sessionStorage.getItem('dz_oauth_state');
+
+    // Support the legacy token1-style return too, in case an older app registration is used.
+    const legacyToken = params.get('token1');
+
+    const cleanUrl = window.location.href.split('?')[0];
+    window.history.replaceState({}, document.title, cleanUrl);
+
+    if(code){
+      if(savedState && returnedState !== savedState){
+        setConn('err', 'Login security check failed (state mismatch) — try again');
+        return;
+      }
+      exchangeCodeForToken(code);
+    } else if(legacyToken){
+      els.apiToken.value = legacyToken;
       connect();
     }
   }
