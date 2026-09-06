@@ -974,7 +974,7 @@
     [els.symbolSelect,...els.strategyTabs.querySelectorAll('.strategy-tab')].forEach(el=>el.style.pointerEvents='auto');
   }
 
-  els.btnConnect.addEventListener('click', connect);
+  els.btnConnect.addEventListener('click', ()=>connect());
   els.btnStart.addEventListener('click', startBot);
   els.btnStop.addEventListener('click', stopBot);
 
