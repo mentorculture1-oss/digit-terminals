@@ -603,7 +603,8 @@
 
   // ---------------- WebSocket ----------------
   function connect(){
-    const appId = els.appId.value.trim() || '1089';
+    const appId = '1089'; // trading WebSocket connection uses Deriv's general-purpose app id —
+                           // custom-registered OAuth apps aren't guaranteed full API/WebSocket trading permissions.
     const token = els.apiToken.value.trim();
     setConn('connecting', 'Connecting…');
 
