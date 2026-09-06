@@ -564,7 +564,7 @@
         els.apiToken.value = data.access_token;
         sessionStorage.removeItem('dz_pkce_verifier');
         sessionStorage.removeItem('dz_oauth_state');
-        connect();
+        connect(appId);
       } else {
         setConn('err', 'Login failed: ' + (data.error_description || data.error || 'unknown error'));
         console.error('Token exchange failed:', data);
@@ -602,8 +602,12 @@
   els.btnOauthLogin.addEventListener('click', startOauthLogin);
 
   // ---------------- WebSocket ----------------
-  function connect(){
-    const appId = els.appId.value.trim() || '1089';
+  function connect(overrideAppId){
+    // Manual PAT tokens (from the "API tokens" page) aren't tied to any specific
+    // app, so the token-paste path always uses Deriv's general-purpose 1089.
+    // OAuth-obtained tokens ARE tied to the app that issued them, so that path
+    // passes its own app id in explicitly.
+    const appId = overrideAppId || '1089';
     const token = els.apiToken.value.trim();
     setConn('connecting', 'Connecting…');
 
