@@ -405,6 +405,7 @@
     strategy:'evenodd',
     running:false,
     pendingProposal:false,
+    pendingStake:null,
     lastSignal:null,
     tradeLog:[],
     martingale:{ active:false, currentStake:null, consecutiveLosses:0 }
@@ -601,41 +602,82 @@
 
   els.btnOauthLogin.addEventListener('click', startOauthLogin);
 
-  // ---------------- WebSocket ----------------
-  function connect(overrideAppId){
-    // Manual PAT tokens (from the "API tokens" page) aren't tied to any specific
-    // app, so the token-paste path always uses Deriv's general-purpose 1089.
-    // OAuth-obtained tokens ARE tied to the app that issued them, so that path
-    // passes its own app id in explicitly.
+  // ---------------- Options Trading API (REST + OTP-WebSocket) ----------------
+  // Deriv retired the old {"authorize": token} WebSocket handshake. The new flow is:
+  //   1. GET  /trading/v1/options/accounts        -> list of accounts
+  //   2. POST /trading/v1/options/accounts/{id}/otp -> one-time-use WebSocket URL (valid 120s)
+  //   3. Connect directly to that URL — no auth message needed after that.
+  const API_BASE = 'https://api.derivws.com';
+
+  async function connect(overrideAppId){
     const appId = overrideAppId || '1089';
     const token = els.apiToken.value.trim();
-    setConn('connecting', 'Connecting…');
+    if(!token){ setConn('err', 'Token required'); return; }
 
-    state.ws = new WebSocket(`wss://ws.derivws.com/websockets/v3?app_id=${appId}&l=EN`);
-
-    state.ws.onopen = ()=>{
-      if(token){
-        send({ authorize: token });
-      } else {
-        setConn('err', 'Token required');
+    setConn('connecting', 'Fetching account…');
+    try{
+      const accResp = await fetch(`${API_BASE}/trading/v1/options/accounts`, {
+        headers: { 'Authorization': `Bearer ${token}`, 'Deriv-App-ID': appId }
+      });
+      const accData = await accResp.json();
+      if(!accResp.ok){
+        setConn('err', 'Account lookup failed: ' + (accData.error?.message || accResp.status));
+        console.error('Accounts error:', accData);
+        return;
       }
-    };
+      const accounts = accData.data || accData.accounts || accData;
+      const account = Array.isArray(accounts) ? accounts[0] : accounts;
+      if(!account || !account.account_id && !account.id){
+        setConn('err', 'No trading account found for this token');
+        console.error('Unexpected accounts response:', accData);
+        return;
+      }
+      const accountId = account.account_id || account.id;
+      state.currency = account.currency || 'USD';
 
-    state.ws.onmessage = (msg)=>{
-      const data = JSON.parse(msg.data);
-      handleMessage(data);
-    };
+      setConn('connecting', 'Requesting session…');
+      const otpResp = await fetch(`${API_BASE}/trading/v1/options/accounts/${accountId}/otp`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Deriv-App-ID': appId }
+      });
+      const otpData = await otpResp.json();
+      if(!otpResp.ok || !otpData.data?.url){
+        setConn('err', 'Session request failed: ' + (otpData.error?.message || otpResp.status));
+        console.error('OTP error:', otpData);
+        return;
+      }
 
-    state.ws.onerror = ()=>{
-      setConn('err', 'Connection error');
-    };
+      // OTP is single-use and expires in ~120s — connect immediately.
+      setConn('connecting', 'Connecting…');
+      state.ws = new WebSocket(otpData.data.url);
 
-    state.ws.onclose = ()=>{
-      setConn('idle', 'Disconnected');
-      state.authorized = false;
-      els.btnStart.disabled = true;
-      stopBot();
-    };
+      state.ws.onopen = ()=>{
+        state.authorized = true;
+        setConn('live', 'Connected');
+        send({ balance:1, subscribe:1 });
+        subscribeTicks();
+        els.btnStart.disabled = false;
+      };
+
+      state.ws.onmessage = (msg)=>{
+        const data = JSON.parse(msg.data);
+        handleMessage(data);
+      };
+
+      state.ws.onerror = ()=>{
+        setConn('err', 'Connection error');
+      };
+
+      state.ws.onclose = ()=>{
+        setConn('idle', 'Disconnected');
+        state.authorized = false;
+        els.btnStart.disabled = true;
+        stopBot();
+      };
+    } catch(err){
+      setConn('err', 'Connection failed — see console');
+      console.error('Connect error:', err);
+    }
   }
 
   function send(obj){
@@ -652,23 +694,18 @@
   function handleMessage(data){
     if(data.error){
       console.error('Deriv API error:', data.error.message);
-      if(data.msg_type === 'authorize'){ setConn('err', data.error.message); }
+      if(data.msg_type === 'proposal'){
+        state.pendingProposal = false;
+        logTrade({error:true, message:data.error.message});
+      }
       if(data.msg_type === 'buy'){ logTrade({error:true, message:data.error.message}); }
       return;
     }
 
     switch(data.msg_type){
-      case 'authorize':
-        state.authorized = true;
-        state.currency = data.authorize.currency;
-        setConn('live', 'Connected · ' + data.authorize.loginid);
-        send({ balance:1, subscribe:1 });
-        subscribeTicks();
-        els.btnStart.disabled = false;
-        break;
-
       case 'balance':
         state.balance = data.balance.balance;
+        if(data.balance.currency) state.currency = data.balance.currency;
         if(state.sessionStartBalance === null) state.sessionStartBalance = state.balance;
         renderBalance();
         break;
@@ -677,12 +714,17 @@
         onTick(data.tick);
         break;
 
+      case 'proposal':
+        // Two-step purchase: we asked for a price (proposal), now immediately buy it.
+        send({ buy: data.proposal.id, price: data.proposal.ask_price });
+        break;
+
       case 'buy':
         state.pendingProposal = false;
         logTrade({
           contract: data.buy.longcode || data.buy.shortcode,
           buyPrice: data.buy.buy_price,
-          stakeUsed: data.buy.buy_price,
+          stakeUsed: state.pendingStake || data.buy.buy_price,
           contractId: data.buy.contract_id
         });
         // subscribe for contract outcome
@@ -862,22 +904,20 @@
       : baseStake;
     const duration = Number(els.durationInput.value);
     const params = {
-      buy: 1,
-      price: stake,
-      parameters: {
-        amount: stake,
-        basis: 'stake',
-        contract_type: state.lastSignal.side,
-        currency: state.currency,
-        duration: duration,
-        duration_unit: 't',
-        symbol: els.symbolSelect.value
-      }
+      proposal: 1,
+      amount: stake,
+      basis: 'stake',
+      contract_type: state.lastSignal.side,
+      currency: state.currency,
+      duration: duration,
+      duration_unit: 't',
+      underlying_symbol: els.symbolSelect.value
     };
     if(state.lastSignal.barrier !== undefined){
-      params.parameters.barrier = String(state.lastSignal.barrier);
+      params.barrier = String(state.lastSignal.barrier);
     }
     state.pendingProposal = true;
+    state.pendingStake = stake;
     send(params);
     if(els.martingaleToggle.checked){
       const label = state.martingale.currentStake !== null
