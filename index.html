@@ -254,12 +254,6 @@
         </div>
         <button class="btn btn-ghost" id="btnConnect">Connect with token</button>
         <input type="hidden" id="oauthAppId" value="34jwz1VVIvvkrMMhsVP0H">
-
-        <div class="field" id="accountPickerWrap" style="display:none; margin-top:14px;">
-          <label for="accountSelect">Choose account</label>
-          <select id="accountSelect"></select>
-          <button class="btn btn-ghost" id="btnUseAccount" style="margin-top:8px;">Use this account</button>
-        </div>
       </div>
 
       <div class="panel">
@@ -412,9 +406,6 @@
     running:false,
     pendingProposal:false,
     pendingStake:null,
-    accounts:[],
-    currentAppId:null,
-    currentToken:null,
     lastSignal:null,
     tradeLog:[],
     martingale:{ active:false, currentStake:null, consecutiveLosses:0 }
@@ -425,9 +416,6 @@
     appId: document.getElementById('oauthAppId'),
     btnOauthLogin: document.getElementById('btnOauthLogin'),
     btnConnect: document.getElementById('btnConnect'),
-    accountPickerWrap: document.getElementById('accountPickerWrap'),
-    accountSelect: document.getElementById('accountSelect'),
-    btnUseAccount: document.getElementById('btnUseAccount'),
     connDot: document.getElementById('connDot'),
     connText: document.getElementById('connText'),
     statBalance: document.getElementById('statBalance'),
@@ -619,89 +607,35 @@
   //   1. GET  /trading/v1/options/accounts        -> list of accounts
   //   2. POST /trading/v1/options/accounts/{id}/otp -> one-time-use WebSocket URL (valid 120s)
   //   3. Connect directly to that URL — no auth message needed after that.
-  // EDIT THIS after deploying worker.js — paste your Cloudflare Worker URL here,
-  // e.g. 'https://digit-terminal-proxy.yourname.workers.dev'
-  const PROXY_BASE = 'https://sweet-smoke-8f0d.mentorculture10.workers.dev';
-  const API_BASE = PROXY_BASE + '/proxy';
+  const API_BASE = 'https://api.derivws.com';
 
   async function connect(overrideAppId){
     const appId = overrideAppId || '1089';
     const token = els.apiToken.value.trim();
     if(!token){ setConn('err', 'Token required'); return; }
-    if(PROXY_BASE.includes('YOUR-WORKER-NAME')){
-      setConn('err', 'Set PROXY_BASE in the code to your deployed Worker URL first');
-      return;
-    }
 
-    setConn('connecting', 'Fetching accounts…');
+    setConn('connecting', 'Fetching account…');
     try{
       const accResp = await fetch(`${API_BASE}/trading/v1/options/accounts`, {
         headers: { 'Authorization': `Bearer ${token}`, 'Deriv-App-ID': appId }
       });
       const accData = await accResp.json();
-      console.log('Accounts response:', accData); // temporary — remove once everything is confirmed working
       if(!accResp.ok){
         setConn('err', 'Account lookup failed: ' + (accData.error?.message || accResp.status));
         console.error('Accounts error:', accData);
         return;
       }
       const accounts = accData.data || accData.accounts || accData;
-      const accountList = Array.isArray(accounts) ? accounts : [accounts];
-      if(accountList.length === 0 || !(accountList[0].account_id || accountList[0].id)){
+      const account = Array.isArray(accounts) ? accounts[0] : accounts;
+      if(!account || !account.account_id && !account.id){
         setConn('err', 'No trading account found for this token');
         console.error('Unexpected accounts response:', accData);
         return;
       }
+      const accountId = account.account_id || account.id;
+      state.currency = account.currency || 'USD';
 
-      state.accounts = accountList;
-      state.currentAppId = appId;
-      state.currentToken = token;
-
-      if(accountList.length === 1){
-        await connectToAccount(accountList[0]);
-      } else {
-        // Multiple accounts (e.g. real + demo) — let the person choose which one.
-        els.accountSelect.innerHTML = accountList.map((a, i)=>{
-          const label = `${a.is_virtual || a.account_type === 'demo' ? 'Demo' : 'Real'} — ${a.currency || ''} ${a.account_id || a.id}`;
-          return `<option value="${i}">${label}</option>`;
-        }).join('');
-        els.accountPickerWrap.style.display = 'block';
-        setConn('idle', 'Choose an account above, then click "Use this account"');
-      }
-    } catch(err){
-      setConn('err', 'Connection failed — see console');
-      console.error('Connect error:', err);
-    }
-  }
-
-  async function connectToAccount(account){
-    const appId = state.currentAppId;
-    const token = state.currentToken;
-    const accountId = account.account_id || account.id;
-    state.currency = account.currency || 'USD';
-
-    // Switching accounts while already connected — cleanly tear down the old
-    // connection first so its onclose handler doesn't fire later and stomp
-    // on the new connection's status.
-    if(state.ws){
-      state.ws.onclose = null;
-      state.ws.onerror = null;
-      state.ws.onmessage = null;
-      if(state.ws.readyState === WebSocket.OPEN || state.ws.readyState === WebSocket.CONNECTING){
-        state.ws.close();
-      }
-      state.ws = null;
-    }
-    stopBot();
-    state.balance = null;
-    state.sessionStartBalance = null;
-    state.sessionPL = 0;
-    state.ticks = [];
-    renderBalance();
-    renderTickUI();
-
-    setConn('connecting', 'Requesting session…');
-    try{
+      setConn('connecting', 'Requesting session…');
       const otpResp = await fetch(`${API_BASE}/trading/v1/options/accounts/${accountId}/otp`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Deriv-App-ID': appId }
@@ -727,7 +661,6 @@
 
       state.ws.onmessage = (msg)=>{
         const data = JSON.parse(msg.data);
-        console.log('WS message:', data.msg_type, data); // temporary — remove once everything is confirmed working
         handleMessage(data);
       };
 
@@ -1082,11 +1015,6 @@
   }
 
   els.btnConnect.addEventListener('click', ()=>connect());
-  els.btnUseAccount.addEventListener('click', ()=>{
-    const idx = Number(els.accountSelect.value);
-    const account = state.accounts[idx];
-    if(account) connectToAccount(account);
-  });
   els.btnStart.addEventListener('click', startBot);
   els.btnStop.addEventListener('click', stopBot);
 
@@ -1097,3 +1025,4 @@
 </script>
 </body>
 </html>
+
