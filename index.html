@@ -3,190 +3,204 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Digit Terminal · Analysis</title>
+<title>Digit Terminal — Deriv Digit Analysis</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
 
   :root{
-    --bg-body:#F4F6F8;
-    --bg-card:#FFFFFF;
-    --bg-subtle:#F0F2F5;
-    --bg-input:#FFFFFF;
-    --border:#E2E8F0;
-    --border-focus:#3B82F6;
-    --text-primary:#0F172A;
-    --text-secondary:#64748B;
-    --text-muted:#94A3B8;
-    --accent:#3B82F6;
-    --accent-light:#EFF6FF;
-    --up:#10B981;
-    --up-light:#ECFDF5;
-    --down:#EF4444;
-    --down-light:#FEF2F2;
-    --amber:#F59E0B;
-    --amber-light:#FFFBEB;
-    --radius-sm:6px;
-    --radius-md:10px;
-    --radius-lg:14px;
-    --shadow-sm:0 1px 2px rgba(0,0,0,0.04);
-    --font-ui:'Inter', -apple-system, sans-serif;
-    --font-mono:'JetBrains Mono', monospace;
+    --bg-base:#05080B;
+    --bg-panel:#080D11;
+    --bg-raised:#0C1318;
+    --bg-hover:#101A21;
+    --border:#12464F;
+    --border-soft:#0D2B31;
+    --text-primary:#CFEFF2;
+    --text-secondary:#5E8A91;
+    --text-dim:#3A5A60;
+    --up:#00E5C7;
+    --up-dim:#062E29;
+    --down:#FF4D6A;
+    --down-dim:#3A0F18;
+    --amber:#FFC94D;
+    --amber-dim:#3A2E0D;
+    --blue:#00D9FF;
+    --blue-dim:#052A30;
+    --radius-sm:2px;
+    --radius-md:2px;
+    --font-ui:'IBM Plex Mono', monospace;
+    --font-mono:'IBM Plex Mono', monospace;
+    --glow:0 0 8px rgba(0,217,255,0.25);
   }
 
-  *{ box-sizing:border-box; margin:0; padding:0; }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
   body{
-    background:var(--bg-body); color:var(--text-primary);
-    font-family:var(--font-ui); -webkit-font-smoothing:antialiased;
-    min-height:100vh; line-height:1.5;
+    background:
+      radial-gradient(ellipse at top, rgba(0,217,255,0.04), transparent 60%),
+      var(--bg-base);
+    color:var(--text-primary);
+    font-family:var(--font-ui);
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    letter-spacing:0.02em;
   }
 
-  .app{ max-width:1200px; margin:0 auto; padding:24px 20px 60px; }
+  .app{ max-width:1180px; margin:0 auto; padding:20px 20px 60px; }
 
   .topbar{
     display:flex; align-items:center; justify-content:space-between;
-    padding:16px 24px; background:var(--bg-card);
-    border:1px solid var(--border); border-radius:var(--radius-lg);
-    margin-bottom:20px; flex-wrap:wrap; gap:12px; box-shadow:var(--shadow-sm);
+    padding:14px 18px; background:var(--bg-panel);
+    border:1px solid var(--border); border-radius:var(--radius-md);
+    margin-bottom:16px; flex-wrap:wrap; gap:12px;
   }
-  .brand{ display:flex; align-items:center; gap:12px; }
+  .brand{ display:flex; align-items:center; gap:10px; }
   .brand-mark{
-    width:38px; height:38px; border-radius:var(--radius-sm);
-    background:linear-gradient(135deg, var(--accent), #2563EB);
+    width:32px; height:32px; border-radius:var(--radius-sm);
+    background:var(--bg-raised); border:1px solid var(--blue);
+    box-shadow:var(--glow);
     display:flex; align-items:center; justify-content:center;
-    font-family:var(--font-mono); font-weight:700; font-size:14px; color:#fff;
+    font-family:var(--font-mono); font-weight:700; font-size:13px; color:var(--blue);
   }
-  .brand-name{ font-weight:700; font-size:16px; }
-  .brand-sub{ color:var(--text-muted); font-size:12px; font-weight:500; }
+  .brand-name{ font-weight:700; font-size:16px; letter-spacing:0.08em; color:var(--blue); text-transform:uppercase; text-shadow:var(--glow); }
+  .brand-sub{ color:var(--text-dim); font-size:10.5px; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:0.08em; }
 
-  .status-cluster{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .status-cluster{ display:flex; align-items:center; gap:22px; flex-wrap:wrap; }
+
   .conn-pill{
-    display:flex; align-items:center; gap:8px; padding:8px 14px;
-    border-radius:20px; background:var(--bg-subtle); border:1px solid var(--border);
-    font-size:12px; font-weight:600; color:var(--text-secondary);
+    display:flex; align-items:center; gap:7px; padding:6px 12px;
+    border-radius:var(--radius-sm); background:var(--bg-raised); border:1px solid var(--border);
+    font-size:11px; font-family:var(--font-mono); color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.08em;
   }
-  .dot{ width:8px; height:8px; border-radius:50%; background:var(--text-muted); }
-  .dot.live{ background:var(--up); box-shadow:0 0 0 3px var(--up-light); }
-  .dot.err{ background:var(--down); box-shadow:0 0 0 3px var(--down-light); }
-  .dot.warn{ background:var(--amber); box-shadow:0 0 0 3px var(--amber-light); }
+  .dot{ width:7px; height:7px; border-radius:50%; background:var(--text-dim); }
+  .dot.live{ background:var(--up); box-shadow:0 0 8px 2px rgba(0,229,199,0.5); }
+  .dot.err{ background:var(--down); box-shadow:0 0 8px 2px rgba(255,77,106,0.5); }
 
-  .btn-login{
-    padding:8px 16px; border-radius:20px; border:none;
-    background:var(--accent); color:#fff; font-weight:600; font-size:12px;
-    cursor:pointer; transition:all .15s;
-  }
-  .btn-login:hover{ background:#2563EB; }
-  .btn-login.logged{ background:var(--up); cursor:default; }
-
-  .grid{ display:grid; grid-template-columns:360px 1fr; gap:20px; }
-  @media (max-width:900px){ .grid{ grid-template-columns:1fr; } }
+  .grid{ display:grid; grid-template-columns:340px 1fr; gap:16px; }
+  @media (max-width:860px){ .grid{ grid-template-columns:1fr; } }
 
   .panel{
-    background:var(--bg-card); border:1px solid var(--border);
-    border-radius:var(--radius-lg); padding:20px; box-shadow:var(--shadow-sm);
+    background:var(--bg-panel); border:1px solid var(--border);
+    border-radius:var(--radius-md); padding:18px; position:relative;
+  }
+  .panel::before{
+    content:''; position:absolute; top:-1px; left:-1px; width:10px; height:10px;
+    border-top:2px solid var(--blue); border-left:2px solid var(--blue); opacity:0.6;
+  }
+  .panel::after{
+    content:''; position:absolute; bottom:-1px; right:-1px; width:10px; height:10px;
+    border-bottom:2px solid var(--blue); border-right:2px solid var(--blue); opacity:0.6;
   }
   .panel + .panel{ margin-top:16px; }
   .panel-title{
-    font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
-    color:var(--text-muted); margin:0 0 16px;
-    display:flex; justify-content:space-between; align-items:center;
+    font-size:11px; text-transform:uppercase; letter-spacing:0.12em;
+    color:var(--blue); margin:0 0 14px; display:flex; justify-content:space-between; align-items:center;
   }
+  .panel-title::before{ content:'● '; }
 
-  label{ display:block; font-size:12px; font-weight:600; color:var(--text-secondary); margin:0 0 6px; }
-  .field{ margin-bottom:16px; }
+  label{ display:block; font-size:11px; color:var(--text-secondary); margin:0 0 6px; text-transform:uppercase; letter-spacing:0.06em; }
+  .field{ margin-bottom:14px; }
   .field:last-child{ margin-bottom:0; }
 
-  input[type=text], input[type=password], input[type=number], select{
-    width:100%; background:var(--bg-input); border:1.5px solid var(--border);
-    color:var(--text-primary); padding:10px 12px; border-radius:var(--radius-sm);
-    font-family:var(--font-mono); font-size:13px; outline:none;
+  input[type=text], input[type=number], select{
+    width:100%; background:var(--bg-raised); border:1px solid var(--border);
+    color:var(--text-primary); padding:9px 10px; border-radius:var(--radius-sm);
+    font-family:var(--font-mono); font-size:13.5px; outline:none;
     transition:border-color .15s, box-shadow .15s;
   }
-  input:focus, select:focus{ border-color:var(--border-focus); box-shadow:0 0 0 3px var(--accent-light); }
-  select{ appearance:none; cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:36px; }
+  input:focus, select:focus{ border-color:var(--blue); box-shadow:var(--glow); }
+  select{ appearance:none; cursor:pointer; }
 
-  .strategy-tabs{ display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+  .strategy-tabs{ display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
   .strategy-tab{
-    padding:8px 16px; border-radius:20px; border:1.5px solid var(--border);
-    background:var(--bg-card); color:var(--text-secondary); font-size:12px;
-    font-weight:600; cursor:pointer; transition:all .15s;
+    padding:8px 14px; border-radius:var(--radius-sm); border:1px solid var(--border);
+    background:var(--bg-raised); color:var(--text-secondary); font-size:11.5px;
+    font-family:var(--font-mono); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;
+    cursor:pointer; transition:all .15s;
   }
-  .strategy-tab:hover{ border-color:var(--accent); color:var(--accent); }
-  .strategy-tab.active{ border-color:var(--accent); color:#fff; background:var(--accent); }
+  .strategy-tab.active{ border-color:var(--blue); color:var(--blue); background:var(--blue-dim); box-shadow:var(--glow); }
 
-  .slider-row{ display:flex; align-items:center; gap:12px; }
-  input[type=range]{ flex:1; accent-color:var(--accent); height:6px; }
-  .slider-val{ font-family:var(--font-mono); font-size:14px; color:var(--accent); min-width:48px; text-align:right; font-weight:700; }
+  .slider-row{ display:flex; align-items:center; gap:10px; }
+  input[type=range]{ flex:1; accent-color:var(--amber); }
+  .slider-val{ font-family:var(--font-mono); font-size:13px; color:var(--amber); min-width:40px; text-align:right; font-weight:700; }
 
-  .hint{ font-size:12px; color:var(--text-muted); margin-top:6px; line-height:1.5; }
+  .hint{ font-size:11px; color:var(--text-dim); margin-top:6px; line-height:1.5; }
 
   .btn{
-    width:100%; padding:12px; border-radius:var(--radius-sm); border:none;
+    width:100%; padding:12px; border-radius:var(--radius-sm); border:1px solid transparent;
     font-family:var(--font-ui); font-weight:700; font-size:13px; cursor:pointer;
-    transition:all .15s; letter-spacing:0.02em;
+    transition:filter .15s, transform .05s; text-transform:uppercase; letter-spacing:0.06em;
   }
-  .btn:active{ transform:scale(0.98); }
-  .btn-start{ background:var(--up); color:#fff; box-shadow:0 2px 8px rgba(16,185,129,0.3); }
-  .btn-start:hover{ box-shadow:0 4px 14px rgba(16,185,129,0.4); }
-  .btn-stop{ background:var(--down); color:#fff; box-shadow:0 2px 8px rgba(239,68,68,0.3); }
-  .btn-stop:hover{ box-shadow:0 4px 14px rgba(239,68,68,0.4); }
-  .btn:disabled{ opacity:0.4; cursor:not-allowed; box-shadow:none; }
+  .btn:active{ transform:scale(0.99); }
+  .btn-start{ background:var(--up-dim); color:var(--up); border-color:var(--up); box-shadow:0 0 10px rgba(0,229,199,0.15); }
+  .btn-start:hover{ box-shadow:0 0 14px rgba(0,229,199,0.3); }
+  .btn-stop{ background:var(--down-dim); color:var(--down); border-color:var(--down); box-shadow:0 0 10px rgba(255,77,106,0.15); }
+  .btn-stop:hover{ box-shadow:0 0 14px rgba(255,77,106,0.3); }
+  .btn:disabled{ opacity:0.35; cursor:not-allowed; box-shadow:none; }
 
-  .digit-grid{ display:grid; grid-template-columns:repeat(10,1fr); gap:8px; align-items:end; height:140px; margin:8px 0 4px; }
+  .digit-grid{ display:grid; grid-template-columns:repeat(10,1fr); gap:6px; align-items:end; height:130px; margin:6px 0 4px; }
   .digit-col{ display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
-  .digit-bar{ width:100%; border-radius:4px 4px 0 0; transition:height .3s ease; min-height:4px; }
-  .digit-bar.even{ background:linear-gradient(to top, #10B981, #34D399); }
-  .digit-bar.odd{ background:linear-gradient(to top, #EF4444, #F87171); }
-  .digit-label{ font-family:var(--font-mono); font-size:11px; color:var(--text-muted); margin-top:8px; font-weight:600; }
-  .digit-pct{ font-family:var(--font-mono); font-size:10px; color:var(--text-muted); margin-bottom:6px; font-weight:600; }
+  .digit-bar{ width:100%; background:var(--bg-hover); border-radius:1px 1px 0 0; transition:height .3s ease; min-height:3px; border:1px solid var(--border); border-bottom:none; }
+  .digit-bar.even{ background:var(--up-dim); border-color:var(--up); box-shadow:0 0 6px rgba(0,229,199,0.2); }
+  .digit-bar.odd{ background:var(--down-dim); border-color:var(--down); box-shadow:0 0 6px rgba(255,77,106,0.2); }
+  .digit-label{ font-family:var(--font-mono); font-size:11px; color:var(--text-dim); margin-top:6px; }
+  .digit-pct{ font-family:var(--font-mono); font-size:9.5px; color:var(--text-dim); margin-bottom:4px; }
 
-  .tick-tape{ display:flex; gap:6px; overflow-x:auto; padding:12px 0; scrollbar-width:none; }
+  .tick-tape{
+    display:flex; gap:5px; overflow-x:auto; padding:10px 0; scrollbar-width:none;
+  }
   .tick-tape::-webkit-scrollbar{ display:none; }
   .tick-chip{
-    flex:0 0 auto; width:30px; height:30px; border-radius:6px;
+    flex:0 0 auto; width:26px; height:26px; border-radius:var(--radius-sm);
     display:flex; align-items:center; justify-content:center;
     font-family:var(--font-mono); font-size:12px; font-weight:700;
-    background:var(--bg-subtle); color:var(--text-secondary); border:1.5px solid var(--border);
+    background:var(--bg-raised); color:var(--text-secondary); border:1px solid var(--border);
   }
-  .tick-chip.even{ color:var(--up); border-color:var(--up); background:var(--up-light); }
-  .tick-chip.odd{ color:var(--down); border-color:var(--down); background:var(--down-light); }
+  .tick-chip.even{ color:var(--up); border-color:var(--up); }
+  .tick-chip.odd{ color:var(--down); border-color:var(--down); }
 
   .signal-banner{
-    display:flex; align-items:center; gap:10px; padding:14px 18px;
-    border-radius:var(--radius-sm); margin-bottom:14px; font-size:14px;
-    background:var(--bg-subtle); border:1.5px solid var(--border); color:var(--text-secondary);
-    font-weight:500;
+    display:flex; align-items:center; gap:10px; padding:11px 14px;
+    border-radius:var(--radius-sm); margin-bottom:14px; font-size:13px;
+    background:var(--bg-raised); border:1px solid var(--border); color:var(--text-secondary);
+    font-family:var(--font-mono);
   }
-  .signal-banner.armed{ border-color:var(--amber); background:var(--amber-light); color:#92400E; }
+  .signal-banner.armed{ border-color:var(--amber); background:var(--amber-dim); color:#FFE1A0; box-shadow:0 0 10px rgba(255,201,77,0.15); }
 
-  .metric-row {
-    display: flex; justify-content: space-between; align-items: center;
-    padding:10px 0; border-bottom:1px solid var(--border); font-size:13px;
+  .metric-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:8px 0; border-bottom:1px solid var(--border-soft);
+    font-family:var(--font-mono); font-size:12px;
   }
-  .metric-row:last-child { border-bottom:none; }
-  .metric-label { color:var(--text-secondary); font-weight:500; }
-  .metric-value { color:var(--accent); font-weight:700; font-family:var(--font-mono); }
-  .metric-value.amber { color:var(--amber); }
+  .metric-row:last-child{ border-bottom:none; }
+  .metric-label{ color:var(--text-secondary); }
+  .metric-value{ color:var(--blue); font-weight:700; }
+  .metric-value.amber{ color:var(--amber); }
 
-  .badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; }
-  .badge.high { background:var(--up-light); color:var(--up); }
-  .badge.medium { background:var(--amber-light); color:var(--amber); }
-  .badge.low { background:var(--down-light); color:var(--down); }
+  .badge{
+    display:inline-block; padding:2px 8px; border-radius:var(--radius-sm);
+    font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
+    border:1px solid transparent;
+  }
+  .badge.high{ background:var(--up-dim); color:var(--up); border-color:var(--up); }
+  .badge.medium{ background:var(--amber-dim); color:var(--amber); border-color:var(--amber); }
+  .badge.low{ background:var(--down-dim); color:var(--down); border-color:var(--down); }
 
   .warning-box{
-    background:var(--amber-light); border:1.5px solid var(--amber); color:#92400E;
-    border-radius:var(--radius-sm); padding:14px 18px; font-size:13px; line-height:1.6;
-    margin-bottom:20px; font-weight:500;
+    background:var(--amber-dim); border:1px solid var(--amber); color:#FFE1A0;
+    border-radius:var(--radius-sm); padding:12px 14px; font-size:12px; line-height:1.55;
+    margin-bottom:16px; font-family:var(--font-mono);
   }
-  .warning-box b{ color:var(--amber); font-weight:700; }
+  .warning-box b{ color:var(--amber); }
 
   .error-box{
-    background:var(--down-light); border:1.5px solid var(--down); color:#991B1B;
-    border-radius:var(--radius-sm); padding:14px 18px; font-size:13px; line-height:1.6;
-    margin-bottom:20px; font-weight:500; display:none;
+    background:var(--down-dim); border:1px solid var(--down); color:#FFC6CC;
+    border-radius:var(--radius-sm); padding:12px 14px; font-size:12px; line-height:1.55;
+    margin-bottom:16px; font-family:var(--font-mono); display:none;
   }
-  .error-box b{ color:var(--down); font-weight:700; }
 
-  .footer-note{ color:var(--text-muted); font-size:12px; text-align:center; margin-top:32px; line-height:1.7; font-weight:500; }
+  .footer-note{ color:var(--text-dim); font-size:10.5px; text-align:center; margin-top:26px; line-height:1.6; text-transform:uppercase; letter-spacing:0.06em; font-family:var(--font-mono); }
 </style>
 </head>
 <body>
@@ -197,22 +211,22 @@
       <div class="brand-mark">DZ</div>
       <div>
         <div class="brand-name">Digit Terminal</div>
-        <div class="brand-sub">Deriv synthetic index digit analysis</div>
+        <div class="brand-sub">deriv synthetic index digit analysis</div>
       </div>
     </div>
     <div class="status-cluster">
-      <button class="btn-login" id="btnLogin">Login with Deriv</button>
       <div class="conn-pill"><span class="dot" id="connDot"></span><span id="connText">Disconnected</span></div>
     </div>
   </div>
 
   <div class="warning-box">
-    <b>Analysis tool only:</b> This reads live public price data and shows a statistical digit-frequency signal — it does not place trades. Logging in with Deriv only verifies your identity so the tool can subscribe to 1-second index symbols that the public feed blocks. It does not place any trade on your behalf. Signals are informational only. Synthetic index outcomes are randomised and past digit patterns don't predict future ones.
+    <b>Analysis tool only:</b> this reads live public price data and shows a statistical digit-frequency signal — it does not place trades and does not need your Deriv login or any account access. When a signal arms, you set up and place the trade yourself on your own Deriv account. It does not guarantee profit — synthetic index outcomes are randomised and past digit patterns don't predict future ones.
   </div>
 
   <div class="error-box" id="errorBox"></div>
 
   <div class="grid">
+    <!-- LEFT: CONFIG -->
     <div>
       <div class="panel">
         <div class="panel-title">Market</div>
@@ -224,12 +238,8 @@
             <option value="R_50">Volatility 50 Index</option>
             <option value="R_75" selected>Volatility 75 Index</option>
             <option value="R_100">Volatility 100 Index</option>
-            <option value="1HZ10V">Volatility 10 (1s) Index</option>
-            <option value="1HZ25V">Volatility 25 (1s) Index</option>
-            <option value="1HZ50V">Volatility 50 (1s) Index</option>
-            <option value="1HZ75V">Volatility 75 (1s) Index</option>
-            <option value="1HZ100V">Volatility 100 (1s) Index</option>
           </select>
+          <div class="hint">Only R_* indices are enabled — the 1-second (1HZ*) indices require an authenticated feed and are not shown here.</div>
         </div>
       </div>
 
@@ -244,7 +254,7 @@
         <div id="strategyExtra"></div>
 
         <div class="field">
-          <label>Confidence threshold</label>
+          <label>Confidence threshold — how far digit frequency must drift from expected before a signal arms</label>
           <div class="slider-row">
             <input type="range" id="confSlider" min="52" max="85" value="62">
             <div class="slider-val" id="confVal">62%</div>
@@ -265,11 +275,12 @@
       </div>
     </div>
 
+    <!-- RIGHT: LIVE -->
     <div>
       <div class="panel">
         <div class="panel-title">
           <span>Live digit distribution</span>
-          <span id="tickCount" style="font-family:var(--font-mono); font-weight:600; color:var(--text-muted);">0 ticks</span>
+          <span id="tickCount" style="font-family:var(--font-mono); font-weight:500; color:var(--text-dim);">0 ticks</span>
         </div>
         <div class="digit-grid" id="digitGrid"></div>
         <div class="tick-tape" id="tickTape"></div>
@@ -283,7 +294,7 @@
 
       <div class="panel">
         <div class="panel-title">Statistical accuracy metrics</div>
-        <div id="accuracyMetrics">
+        <div>
           <div class="metric-row">
             <span class="metric-label">Chi-square (uniformity)</span>
             <span class="metric-value" id="chiValue">—</span>
@@ -301,7 +312,7 @@
             <span class="metric-value" id="digitStability">—</span>
           </div>
         </div>
-        <div class="hint" style="margin-top:10px;">Higher chi-square & bias confidence = stronger statistical signal. Recommended threshold adjusts dynamically.</div>
+        <div class="hint" style="margin-top:10px;">Higher chi-square &amp; bias confidence = stronger statistical signal. Recommended threshold adjusts dynamically.</div>
       </div>
     </div>
   </div>
@@ -314,31 +325,26 @@
 <script>
 (function(){
   // ---------------- CONFIG ----------------
-  const APP_ID = '34nCrHkce65Z7N2Yy987vr';
-
-  // Correct OAuth endpoint — must be oauth.deriv.com, NOT deriv.com
-  const OAUTH_URL = 'https://oauth.deriv.com/oauth2/authorize?app_id=' + APP_ID;
+  // Public app ID used only to receive market data. No login, no trade scope.
+  const PUBLIC_APP_ID = '1089';
 
   // ---------------- State ----------------
   const state = {
     ws: null,
     running: false,
     ticks: [],
+    tickHistory: [],
     strategy: 'evenodd',
     lastSignal: null,
     signalHoldUntil: 0,
     signalHoldMs: 7000,
-    tickHistory: [],
     manualThresholdUntil: 0,
     reconnectTimer: null,
-    token: null,
-    loggedIn: false,
   };
 
   const els = {
     connDot: document.getElementById('connDot'),
     connText: document.getElementById('connText'),
-    btnLogin: document.getElementById('btnLogin'),
     symbolSelect: document.getElementById('symbolSelect'),
     strategyTabs: document.getElementById('strategyTabs'),
     strategyExtra: document.getElementById('strategyExtra'),
@@ -358,33 +364,6 @@
     digitStability: document.getElementById('digitStability'),
     errorBox: document.getElementById('errorBox'),
   };
-
-  // ---------------- OAuth token pickup ----------------
-  function pickUpTokenFromHash(){
-    const hash = window.location.hash.substring(1);
-    if(!hash) return null;
-    const params = new URLSearchParams(hash);
-    const token = params.get('token1');
-    if(token){
-      window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
-      return token;
-    }
-    return null;
-  }
-
-  const incomingToken = pickUpTokenFromHash();
-  if(incomingToken){
-    state.token = incomingToken;
-    state.loggedIn = true;
-    els.btnLogin.textContent = 'Logged in ✓';
-    els.btnLogin.classList.add('logged');
-  }
-
-  // ---------------- Login button ----------------
-  els.btnLogin.addEventListener('click', ()=>{
-    if(state.loggedIn) return;
-    window.location.href = OAUTH_URL;
-  });
 
   // ---------------- Strategy extra fields ----------------
   function renderStrategyExtra(){
@@ -429,16 +408,12 @@
     showError('');
     setConn('connecting', 'Connecting…');
 
-    const url = `wss://ws.derivws.com/websockets/v3?app_id=${APP_ID}&l=EN`;
+    const url = `wss://ws.derivws.com/websockets/v3?app_id=${PUBLIC_APP_ID}&l=EN`;
     state.ws = new WebSocket(url);
 
     state.ws.onopen = ()=>{
-      setConn('live', 'Connected');
-      if(state.token){
-        send({ authorize: state.token });
-      } else {
-        subscribeTicks();
-      }
+      setConn('live', 'Connected (public feed)');
+      subscribeTicks();
     };
 
     state.ws.onmessage = (msg)=>{
@@ -449,19 +424,6 @@
         console.error('Deriv API error:', data.error);
         showError(`Deriv API error: ${data.error.message || data.error.code}`);
         setConn('err', 'API error');
-        if(data.msg_type === 'authorize'){
-          state.token = null;
-          state.loggedIn = false;
-          els.btnLogin.textContent = 'Login with Deriv';
-          els.btnLogin.classList.remove('logged');
-          subscribeTicks();
-        }
-        return;
-      }
-
-      if(data.msg_type === 'authorize' && data.authorize){
-        setConn('live', 'Connected (authorized)');
-        subscribeTicks();
         return;
       }
 
@@ -477,11 +439,9 @@
 
     state.ws.onclose = ()=>{
       if(state.running){
-        setConn('warn', 'Reconnecting…');
+        setConn('connecting', 'Reconnecting…');
         clearTimeout(state.reconnectTimer);
-        state.reconnectTimer = setTimeout(()=>{
-          if(state.running) connect();
-        }, 2000);
+        state.reconnectTimer = setTimeout(()=>{ if(state.running) connect(); }, 2000);
       } else {
         setConn('idle', 'Disconnected');
       }
@@ -496,10 +456,7 @@
 
   function setConn(mode, text){
     els.connText.textContent = text;
-    els.connDot.className = 'dot' +
-      (mode === 'live' ? ' live' :
-       mode === 'err' ? ' err' :
-       mode === 'warn' ? ' warn' : '');
+    els.connDot.className = 'dot' + (mode === 'live' ? ' live' : mode === 'err' ? ' err' : '');
   }
 
   function showError(msg){
@@ -553,6 +510,7 @@
 
   function renderTickUI(){
     els.tickCount.textContent = state.ticks.length + ' ticks';
+
     const counts = Array(10).fill(0);
     state.ticks.forEach(d=>counts[d]++);
     const total = state.ticks.length || 1;
@@ -578,6 +536,7 @@
     els.tickTape.scrollLeft = els.tickTape.scrollWidth;
   }
 
+  // ---------------- Statistical metrics ----------------
   function updateAccuracyMetrics(){
     const n = state.ticks.length;
     if(n < 10){
@@ -587,14 +546,17 @@
       els.digitStability.textContent = '—';
       return;
     }
+
     const counts = Array(10).fill(0);
     state.ticks.forEach(d=>counts[d]++);
     const expected = n / 10;
+
     let chiSq = 0;
     for(let d=0; d<10; d++){
       const diff = counts[d] - expected;
       chiSq += (diff * diff) / expected;
     }
+
     let biasLevel = 'low';
     let biasText = 'Low';
     if(chiSq > 21.67) { biasLevel = 'high'; biasText = 'High (p<0.01)'; }
@@ -635,6 +597,7 @@
     }
   }
 
+  // ---------------- Signal engine ----------------
   function evaluateSignal(){
     const minTicks = 30;
     if(state.ticks.length < minTicks){
@@ -642,10 +605,12 @@
       state.lastSignal = null;
       return;
     }
+
     let threshold = Number(els.confSlider.value) / 100;
     const n = state.ticks.length;
     const counts = Array(10).fill(0);
     state.ticks.forEach(d=>counts[d]++);
+
     const expected = n / 10;
     let chiSq = 0;
     for(let d=0; d<10; d++){
@@ -669,6 +634,7 @@
         state.lastSignal = null;
         setSignal('idle', `No edge yet — Even ${(evenPct*100).toFixed(1)}% / Odd ${(oddPct*100).toFixed(1)}%, need ${(threshold*100).toFixed(0)}%`, '');
       }
+
     } else if(state.strategy === 'overunder'){
       const barrier = Number(document.getElementById('barrierInput')?.value || 5);
       const overCount = counts.filter((_,d)=>d>barrier).reduce((a,b)=>a+b,0);
@@ -685,6 +651,7 @@
         state.lastSignal = null;
         setSignal('idle', `No edge yet — Over ${(overPct*100).toFixed(1)}% / Under ${(underPct*100).toFixed(1)}%, need ${(threshold*100).toFixed(0)}%`, '');
       }
+
     } else if(state.strategy === 'matchdiffer'){
       const now = Date.now();
       if(state.lastSignal && state.lastSignal.barrier !== undefined && now < state.signalHoldUntil){
@@ -693,10 +660,12 @@
           state.lastSignal.reason + ` · Holding steady for ${(remainingMs/1000).toFixed(1)}s more.`);
         return;
       }
+
       let minD = 0;
       for(let d=1; d<10; d++) if(counts[d] < counts[minD]) minD = d;
       const minPct = counts[minD]/n;
       const expectedPct = 1/10;
+
       const deviation = expectedPct - minPct;
       if(deviation >= 0.025 || (chiSq > 12 && minPct < 0.08)){
         const isNewSignal = !state.lastSignal || state.lastSignal.barrier !== minD;
@@ -723,6 +692,7 @@
     els.signalDetail.textContent = detail;
   }
 
+  // ---------------- Start / stop ----------------
   function startAnalysis(){
     state.running = true;
     els.btnStart.style.display = 'none';
