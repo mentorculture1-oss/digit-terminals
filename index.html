@@ -221,47 +221,21 @@
       <div class="brand-mark">DZ</div>
       <div>
         <div class="brand-name">Digit Terminal</div>
-        <div class="brand-sub">deriv synthetic index auto-trader</div>
+        <div class="brand-sub">deriv synthetic index digit analysis</div>
       </div>
     </div>
     <div class="status-cluster">
-      <div class="stat">
-        <div class="stat-label">Balance</div>
-        <div class="stat-value" id="statBalance">—</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Session P/L</div>
-        <div class="stat-value" id="statPL">$0.00</div>
-      </div>
       <div class="conn-pill"><span class="dot" id="connDot"></span><span id="connText">Disconnected</span></div>
     </div>
   </div>
 
   <div class="warning-box">
-    <b>Before you start:</b> this bot trades real or demo funds on your Deriv account based on statistical digit-frequency signals. It does not guarantee profit — synthetic index outcomes are randomised and past digit patterns don't predict future ones. Use your Deriv API token, start with a demo account, and never risk money you can't afford to lose.
+    <b>Analysis tool only:</b> this reads live public price data and shows a statistical digit-frequency signal — it does not place trades and does not need your Deriv login or any account access. When a signal arms, you set up and place the trade yourself on your own Deriv account. It does not guarantee profit — synthetic index outcomes are randomised and past digit patterns don't predict future ones.
   </div>
 
   <div class="grid">
     <!-- LEFT: CONFIG -->
     <div>
-      <div class="panel">
-        <div class="panel-title">Connection</div>
-        <button class="btn btn-ghost" id="btnOauthLogin" style="margin-bottom:10px;">Log in with Deriv</button>
-        <div class="hint" style="text-align:center;margin:8px 0;">— or —</div>
-        <div class="field">
-          <label for="apiToken">Paste API token manually</label>
-          <input type="text" id="apiToken" placeholder="Paste your read/trade token" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-        </div>
-        <button class="btn btn-ghost" id="btnConnect">Connect with token</button>
-        <input type="hidden" id="oauthAppId" value="34jwz1VVIvvkrMMhsVP0H">
-
-        <div class="field" id="accountPickerWrap" style="display:none; margin-top:14px;">
-          <label for="accountSelect">Choose account</label>
-          <select id="accountSelect"></select>
-          <button class="btn btn-ghost" id="btnUseAccount" style="margin-top:8px;">Use this account</button>
-        </div>
-      </div>
-
       <div class="panel">
         <div class="panel-title">Market</div>
         <div class="field">
@@ -292,12 +266,12 @@
         <div id="strategyExtra"></div>
 
         <div class="field">
-          <label>Confidence threshold — how far digit frequency must drift from expected before the bot trades</label>
+          <label>Confidence threshold — how far digit frequency must drift from expected before a signal arms</label>
           <div class="slider-row">
             <input type="range" id="confSlider" min="52" max="85" value="62">
             <div class="slider-val" id="confVal">62%</div>
           </div>
-          <div class="hint">Higher = fewer, more selective trades. Lower = more frequent trades on smaller edges.</div>
+          <div class="hint">Higher = fewer, more selective signals. Lower = more frequent signals on smaller edges.</div>
         </div>
 
         <div class="field">
@@ -307,62 +281,8 @@
       </div>
 
       <div class="panel">
-        <div class="panel-title">Stake &amp; risk</div>
-        <div class="row2">
-          <div class="field">
-            <label for="stakeInput">Base stake per trade (USD)</label>
-            <input type="number" id="stakeInput" value="1" min="0.35" step="0.01">
-          </div>
-          <div class="field">
-            <label for="durationInput">Duration (ticks)</label>
-            <input type="number" id="durationInput" value="1" min="1" max="10">
-          </div>
-        </div>
-        <div class="row2">
-          <div class="field">
-            <label for="profitTarget">Daily profit target (USD)</label>
-            <input type="number" id="profitTarget" value="5000" min="0" step="1">
-          </div>
-          <div class="field">
-            <label for="lossLimit">Daily loss limit (%)</label>
-            <input type="number" id="lossLimit" value="2" min="0.5" max="50" step="0.5">
-          </div>
-        </div>
-        <div class="hint">The bot auto-stops for the day once either limit is hit. Loss limit is calculated against your balance at session start.</div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-title">
-          <span>Martingale recovery</span>
-          <label style="display:flex;align-items:center;gap:6px;margin:0;font-size:12px;color:var(--text-secondary);">
-            <input type="checkbox" id="martingaleToggle" style="width:auto;">On
-          </label>
-        </div>
-        <div id="martingaleFields" style="display:none;">
-          <div class="row2">
-            <div class="field">
-              <label for="martMultiplier">Multiplier after a loss</label>
-              <input type="number" id="martMultiplier" value="2" min="1.1" max="5" step="0.1">
-            </div>
-            <div class="field">
-              <label for="martMaxSteps">Max consecutive losses</label>
-              <input type="number" id="martMaxSteps" value="5" min="1" max="10">
-            </div>
-          </div>
-          <div class="hint">
-            After a loss, the next stake is multiplied to try to recover it plus a small profit on the next win.
-            Stake resets to base after any win, or after hitting the max consecutive losses cap — whichever comes
-            first, the bot stops trading for the day. <b style="color:var(--amber)">Stake grows fast in a losing
-            streak</b> (e.g. $1 → $2 → $4 → $8 → $16 → $32 at 2x over 5 losses) — this does not prevent losses,
-            it resizes them. Set the cap conservatively.
-          </div>
-        </div>
-        <div class="hint" id="martingaleOffHint">Off by default. Each trade uses the fixed base stake above.</div>
-      </div>
-
-      <div class="panel">
-        <button class="btn btn-start" id="btnStart" disabled>Start bot</button>
-        <button class="btn btn-stop" id="btnStop" style="display:none;">Stop bot</button>
+        <button class="btn btn-start" id="btnStart">Start analysis</button>
+        <button class="btn btn-stop" id="btnStop" style="display:none;">Stop analysis</button>
       </div>
     </div>
 
@@ -382,21 +302,11 @@
         <div class="signal-banner" id="signalBanner">Waiting for enough tick data to evaluate a signal…</div>
         <div class="hint" id="signalDetail"></div>
       </div>
-
-      <div class="panel">
-        <div class="panel-title">
-          <span>Trade log</span>
-          <span id="tradeCount" style="font-family:var(--font-mono); font-weight:500; color:var(--text-dim);">0 trades</span>
-        </div>
-        <div id="logWrap">
-          <div class="log-empty">No trades yet this session</div>
-        </div>
-      </div>
     </div>
   </div>
 
   <div class="footer-note">
-    Built for Deriv synthetic indices only · Digit Terminal is a tool, not financial advice · Always test on a demo account first
+    Built for Deriv synthetic indices only · Digit Terminal is an analysis tool, not financial advice · It does not place trades — read the signal and act manually on your Deriv account
   </div>
 </div>
 
@@ -404,52 +314,24 @@
 (function(){
   // ---------------- State ----------------
   const state = {
-    ws:null, authorized:false,
-    balance:null, currency:'USD', sessionStartBalance:null,
-    sessionPL:0, tradesToday:0,
-    ticks:[], // {digit, ts}
-    strategy:'evenodd',
+    ws:null,
     running:false,
-    pendingProposal:false,
-    pendingStake:null,
-    accounts:[],
-    currentAppId:null,
-    currentToken:null,
+    ticks:[], // last digits
+    strategy:'evenodd',
     lastSignal:null,
     signalHoldUntil:0,
     signalHoldMs:5000,
-    lastActedSignalKey:null,
-    tradeLog:[],
-    martingale:{ active:false, currentStake:null, consecutiveLosses:0 }
   };
 
   const els = {
-    apiToken: document.getElementById('apiToken'),
-    appId: document.getElementById('oauthAppId'),
-    btnOauthLogin: document.getElementById('btnOauthLogin'),
-    btnConnect: document.getElementById('btnConnect'),
-    accountPickerWrap: document.getElementById('accountPickerWrap'),
-    accountSelect: document.getElementById('accountSelect'),
-    btnUseAccount: document.getElementById('btnUseAccount'),
     connDot: document.getElementById('connDot'),
     connText: document.getElementById('connText'),
-    statBalance: document.getElementById('statBalance'),
-    statPL: document.getElementById('statPL'),
     symbolSelect: document.getElementById('symbolSelect'),
     strategyTabs: document.getElementById('strategyTabs'),
     strategyExtra: document.getElementById('strategyExtra'),
     confSlider: document.getElementById('confSlider'),
     confVal: document.getElementById('confVal'),
     lookback: document.getElementById('lookback'),
-    stakeInput: document.getElementById('stakeInput'),
-    durationInput: document.getElementById('durationInput'),
-    profitTarget: document.getElementById('profitTarget'),
-    lossLimit: document.getElementById('lossLimit'),
-    martingaleToggle: document.getElementById('martingaleToggle'),
-    martingaleFields: document.getElementById('martingaleFields'),
-    martingaleOffHint: document.getElementById('martingaleOffHint'),
-    martMultiplier: document.getElementById('martMultiplier'),
-    martMaxSteps: document.getElementById('martMaxSteps'),
     btnStart: document.getElementById('btnStart'),
     btnStop: document.getElementById('btnStop'),
     digitGrid: document.getElementById('digitGrid'),
@@ -457,8 +339,6 @@
     tickCount: document.getElementById('tickCount'),
     signalBanner: document.getElementById('signalBanner'),
     signalDetail: document.getElementById('signalDetail'),
-    logWrap: document.getElementById('logWrap'),
-    tradeCount: document.getElementById('tradeCount'),
   };
 
   // ---------------- Strategy extra fields ----------------
@@ -486,6 +366,8 @@
       els.strategyTabs.querySelectorAll('.strategy-tab').forEach(t=>t.classList.remove('active'));
       tab.classList.add('active');
       state.strategy = tab.dataset.strategy;
+      state.lastSignal = null;
+      state.signalHoldUntil = 0;
       renderStrategyExtra();
       evaluateSignal();
     });
@@ -496,258 +378,38 @@
     evaluateSignal();
   });
 
-  els.martingaleToggle.addEventListener('change', ()=>{
-    const on = els.martingaleToggle.checked;
-    els.martingaleFields.style.display = on ? 'block' : 'none';
-    els.martingaleOffHint.style.display = on ? 'none' : 'block';
-  });
+  // ---------------- Public tick feed (no login, no account access) ----------------
+  // Live price data on Deriv's synthetic indices is public — reading it needs no
+  // token, no OAuth, no backend. Only placing trades would need that, and this
+  // tool doesn't place trades: it just shows you the signal to act on yourself.
+  const PUBLIC_APP_ID = '1089';
 
-  // ---------------- OAuth login (OAuth2 + PKCE) ----------------
-  const OAUTH_AUTHORIZE_URL = 'https://auth.deriv.com/oauth2/auth';
-  const OAUTH_TOKEN_URL = 'https://auth.deriv.com/oauth2/token';
-  const OAUTH_SCOPE = 'trade';
+  function connectPublicFeed(){
+    setConn('connecting', 'Connecting…');
+    state.ws = new WebSocket(`wss://ws.derivws.com/websockets/v3?app_id=${PUBLIC_APP_ID}&l=EN`);
 
-  function base64UrlEncode(buffer){
-    let str = '';
-    const bytes = new Uint8Array(buffer);
-    for(let i=0;i<bytes.byteLength;i++) str += String.fromCharCode(bytes[i]);
-    return btoa(str).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-  }
+    state.ws.onopen = ()=>{
+      setConn('live', 'Connected (public feed)');
+      subscribeTicks();
+    };
 
-  function randomString(length){
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
-    const array = new Uint8Array(length);
-    crypto.getRandomValues(array);
-    return Array.from(array).map(v => chars[v % chars.length]).join('');
-  }
-
-  async function sha256Base64Url(input){
-    const encoder = new TextEncoder();
-    const data = encoder.encode(input);
-    const digest = await crypto.subtle.digest('SHA-256', data);
-    return base64UrlEncode(digest);
-  }
-
-  async function startOauthLogin(){
-    const appId = els.appId.value.trim();
-    if(!appId){
-      alert('Missing App ID in the code — contact the developer.');
-      return;
-    }
-    const redirectUri = window.location.href.split('?')[0].split('#')[0];
-    const codeVerifier = randomString(64);
-    const state = randomString(24);
-    const codeChallenge = await sha256Base64Url(codeVerifier);
-
-    sessionStorage.setItem('dz_pkce_verifier', codeVerifier);
-    sessionStorage.setItem('dz_oauth_state', state);
-
-    const params = new URLSearchParams({
-      response_type: 'code',
-      client_id: appId,
-      redirect_uri: redirectUri,
-      scope: OAUTH_SCOPE,
-      state: state,
-      code_challenge: codeChallenge,
-      code_challenge_method: 'S256'
-    });
-
-    window.location.href = `${OAUTH_AUTHORIZE_URL}?${params.toString()}`;
-  }
-
-  async function exchangeCodeForToken(code){
-    const appId = els.appId.value.trim();
-    const redirectUri = window.location.href.split('?')[0].split('#')[0];
-    const codeVerifier = sessionStorage.getItem('dz_pkce_verifier');
-    if(!codeVerifier){
-      setConn('err', 'Login session expired — try logging in again');
-      return;
-    }
-    try{
-      const resp = await fetch(OAUTH_TOKEN_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          grant_type: 'authorization_code',
-          client_id: appId,
-          code: code,
-          redirect_uri: redirectUri,
-          code_verifier: codeVerifier
-        })
-      });
-      const data = await resp.json();
-      if(data.access_token){
-        els.apiToken.value = data.access_token;
-        sessionStorage.removeItem('dz_pkce_verifier');
-        sessionStorage.removeItem('dz_oauth_state');
-        connect(appId);
-      } else {
-        setConn('err', 'Login failed: ' + (data.error_description || data.error || 'unknown error'));
-        console.error('Token exchange failed:', data);
+    state.ws.onmessage = (msg)=>{
+      const data = JSON.parse(msg.data);
+      if(data.msg_type === 'tick' && !data.error){
+        onTick(data.tick);
       }
-    } catch(err){
-      setConn('err', 'Login request failed — see console');
-      console.error('Token exchange error:', err);
-    }
-  }
+    };
 
-  function checkOauthReturn(){
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');
-    const returnedState = params.get('state');
-    const savedState = sessionStorage.getItem('dz_oauth_state');
+    state.ws.onerror = ()=>{
+      setConn('err', 'Connection error');
+    };
 
-    // Support the legacy token1-style return too, in case an older app registration is used.
-    const legacyToken = params.get('token1');
-
-    const cleanUrl = window.location.href.split('?')[0];
-    window.history.replaceState({}, document.title, cleanUrl);
-
-    if(code){
-      if(savedState && returnedState !== savedState){
-        setConn('err', 'Login security check failed (state mismatch) — try again');
-        return;
-      }
-      exchangeCodeForToken(code);
-    } else if(legacyToken){
-      els.apiToken.value = legacyToken;
-      connect();
-    }
-  }
-
-  els.btnOauthLogin.addEventListener('click', startOauthLogin);
-
-  // ---------------- Options Trading API (REST + OTP-WebSocket) ----------------
-  // Deriv retired the old {"authorize": token} WebSocket handshake. The new flow is:
-  //   1. GET  /trading/v1/options/accounts        -> list of accounts
-  //   2. POST /trading/v1/options/accounts/{id}/otp -> one-time-use WebSocket URL (valid 120s)
-  //   3. Connect directly to that URL — no auth message needed after that.
-  // EDIT THIS after deploying worker.js — paste your Cloudflare Worker URL here,
-  // e.g. 'https://digit-terminal-proxy.yourname.workers.dev'
-  const PROXY_BASE = 'https://sweet-smoke-8f0d.mentorculture10.workers.dev';
-  const API_BASE = PROXY_BASE + '/proxy';
-
-  async function connect(overrideAppId){
-    const appId = overrideAppId || '1089';
-    const token = els.apiToken.value.trim();
-    if(!token){ setConn('err', 'Token required'); return; }
-    if(PROXY_BASE.includes('YOUR-WORKER-NAME')){
-      setConn('err', 'Set PROXY_BASE in the code to your deployed Worker URL first');
-      return;
-    }
-
-    setConn('connecting', 'Fetching accounts…');
-    try{
-      const accResp = await fetch(`${API_BASE}/trading/v1/options/accounts`, {
-        headers: { 'Authorization': `Bearer ${token}`, 'Deriv-App-ID': appId }
-      });
-      const accData = await accResp.json();
-      console.log('Accounts response:', accData); // temporary — remove once everything is confirmed working
-      if(!accResp.ok){
-        setConn('err', 'Account lookup failed: ' + (accData.error?.message || accResp.status));
-        console.error('Accounts error:', accData);
-        return;
-      }
-      const accounts = accData.data || accData.accounts || accData;
-      const accountList = Array.isArray(accounts) ? accounts : [accounts];
-      if(accountList.length === 0 || !(accountList[0].account_id || accountList[0].id)){
-        setConn('err', 'No trading account found for this token');
-        console.error('Unexpected accounts response:', accData);
-        return;
-      }
-
-      state.accounts = accountList;
-      state.currentAppId = appId;
-      state.currentToken = token;
-
-      if(accountList.length === 1){
-        await connectToAccount(accountList[0]);
-      } else {
-        // Multiple accounts (e.g. real + demo) — let the person choose which one.
-        els.accountSelect.innerHTML = accountList.map((a, i)=>{
-          const label = `${a.is_virtual || a.account_type === 'demo' ? 'Demo' : 'Real'} — ${a.currency || ''} ${a.account_id || a.id}`;
-          return `<option value="${i}">${label}</option>`;
-        }).join('');
-        els.accountPickerWrap.style.display = 'block';
-        setConn('idle', 'Choose an account above, then click "Use this account"');
-      }
-    } catch(err){
-      setConn('err', 'Connection failed — see console');
-      console.error('Connect error:', err);
-    }
-  }
-
-  async function connectToAccount(account){
-    const appId = state.currentAppId;
-    const token = state.currentToken;
-    const accountId = account.account_id || account.id;
-    state.currency = account.currency || 'USD';
-
-    // Switching accounts while already connected — cleanly tear down the old
-    // connection first so its onclose handler doesn't fire later and stomp
-    // on the new connection's status.
-    if(state.ws){
-      state.ws.onclose = null;
-      state.ws.onerror = null;
-      state.ws.onmessage = null;
-      if(state.ws.readyState === WebSocket.OPEN || state.ws.readyState === WebSocket.CONNECTING){
-        state.ws.close();
-      }
-      state.ws = null;
-    }
-    stopBot();
-    state.balance = null;
-    state.sessionStartBalance = null;
-    state.sessionPL = 0;
-    state.ticks = [];
-    renderBalance();
-    renderTickUI();
-
-    setConn('connecting', 'Requesting session…');
-    try{
-      const otpResp = await fetch(`${API_BASE}/trading/v1/options/accounts/${accountId}/otp`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}`, 'Deriv-App-ID': appId }
-      });
-      const otpData = await otpResp.json();
-      if(!otpResp.ok || !otpData.data?.url){
-        setConn('err', 'Session request failed: ' + (otpData.error?.message || otpResp.status));
-        console.error('OTP error:', otpData);
-        return;
-      }
-
-      // OTP is single-use and expires in ~120s — connect immediately.
-      setConn('connecting', 'Connecting…');
-      state.ws = new WebSocket(otpData.data.url);
-
-      state.ws.onopen = ()=>{
-        state.authorized = true;
-        setConn('live', 'Connected');
-        send({ balance:1, subscribe:1 });
-        subscribeTicks();
-        els.btnStart.disabled = false;
-      };
-
-      state.ws.onmessage = (msg)=>{
-        const data = JSON.parse(msg.data);
-        console.log('WS message:', data.msg_type, data); // temporary — remove once everything is confirmed working
-        handleMessage(data);
-      };
-
-      state.ws.onerror = ()=>{
-        setConn('err', 'Connection error');
-      };
-
-      state.ws.onclose = ()=>{
+    state.ws.onclose = ()=>{
+      if(state.running){
         setConn('idle', 'Disconnected');
-        state.authorized = false;
-        els.btnStart.disabled = true;
-        stopBot();
-      };
-    } catch(err){
-      setConn('err', 'Connection failed — see console');
-      console.error('Connect error:', err);
-    }
+        stopAnalysis();
+      }
+    };
   }
 
   function send(obj){
@@ -761,55 +423,6 @@
     els.connDot.className = 'dot' + (mode==='live' ? ' live' : mode==='err' ? ' err' : '');
   }
 
-  function handleMessage(data){
-    if(data.error){
-      console.error('Deriv API error:', data.error.message);
-      if(data.msg_type === 'proposal'){
-        state.pendingProposal = false;
-        logTrade({error:true, message:data.error.message});
-      }
-      if(data.msg_type === 'buy'){ logTrade({error:true, message:data.error.message}); }
-      return;
-    }
-
-    switch(data.msg_type){
-      case 'balance':
-        state.balance = data.balance.balance;
-        if(data.balance.currency) state.currency = data.balance.currency;
-        if(state.sessionStartBalance === null) state.sessionStartBalance = state.balance;
-        renderBalance();
-        break;
-
-      case 'tick':
-        onTick(data.tick);
-        break;
-
-      case 'proposal':
-        // Two-step purchase: we asked for a price (proposal), now immediately buy it.
-        send({ buy: data.proposal.id, price: data.proposal.ask_price });
-        break;
-
-      case 'buy':
-        state.pendingProposal = false;
-        logTrade({
-          contract: data.buy.longcode || data.buy.shortcode,
-          buyPrice: data.buy.buy_price,
-          stakeUsed: state.pendingStake || data.buy.buy_price,
-          contractId: data.buy.contract_id
-        });
-        // subscribe for contract outcome
-        send({ proposal_open_contract:1, contract_id:data.buy.contract_id, subscribe:1 });
-        break;
-
-      case 'proposal_open_contract':
-        const c = data.proposal_open_contract;
-        if(c.is_sold){
-          settleTrade(c.contract_id, c.profit);
-        }
-        break;
-    }
-  }
-
   function subscribeTicks(){
     state.ticks = [];
     renderTickUI();
@@ -817,22 +430,14 @@
   }
 
   els.symbolSelect.addEventListener('change', ()=>{
-    send({ forget_all: 'ticks' });
-    subscribeTicks();
+    if(state.running){
+      send({ forget_all: 'ticks' });
+      subscribeTicks();
+    }
   });
-
-  function renderBalance(){
-    els.statBalance.textContent = state.balance !== null
-      ? state.balance.toFixed(2) + ' ' + state.currency
-      : '—';
-    const pl = state.sessionPL;
-    els.statPL.textContent = (pl>=0?'+':'') + '$' + pl.toFixed(2);
-    els.statPL.className = 'stat-value ' + (pl>0?'pos':pl<0?'neg':'');
-  }
 
   // ---------------- Tick handling ----------------
   function lastDigitFromQuote(quoteStr, pipSize){
-    // pipSize like 0.01 => 2 decimals, 0.001 => 3 decimals
     const decimals = pipSize ? Math.round(-Math.log10(pipSize)) : 2;
     const fixed = Number(quoteStr).toFixed(decimals);
     return Number(fixed.slice(-1));
@@ -846,14 +451,11 @@
 
     renderTickUI();
     evaluateSignal();
-
-    if(state.running) maybeTrade();
   }
 
   function renderTickUI(){
     els.tickCount.textContent = state.ticks.length + ' ticks';
 
-    // histogram
     const counts = Array(10).fill(0);
     state.ticks.forEach(d=>counts[d]++);
     const total = state.ticks.length || 1;
@@ -869,7 +471,6 @@
       els.digitGrid.appendChild(col);
     });
 
-    // tape (last 25)
     els.tickTape.innerHTML = '';
     state.ticks.slice(-25).forEach(d=>{
       const chip = document.createElement('div');
@@ -899,11 +500,11 @@
       const evenPct = evenCount/n;
       const oddPct = 1-evenPct;
       if(evenPct >= threshold){
-        state.lastSignal = { side:'DIGITODD', label:'ODD', reason:`Even digits at ${(evenPct*100).toFixed(1)}% — trading the underrepresented side (Odd)` };
-        setSignal('armed', 'Signal armed: ODD', state.lastSignal.reason);
+        state.lastSignal = { side:'ODD', reason:`Even digits at ${(evenPct*100).toFixed(1)}% — Odd is underrepresented` };
+        setSignal('armed', 'Signal: trade ODD', state.lastSignal.reason);
       } else if(oddPct >= threshold){
-        state.lastSignal = { side:'DIGITEVEN', label:'EVEN', reason:`Odd digits at ${(oddPct*100).toFixed(1)}% — trading the underrepresented side (Even)` };
-        setSignal('armed', 'Signal armed: EVEN', state.lastSignal.reason);
+        state.lastSignal = { side:'EVEN', reason:`Odd digits at ${(oddPct*100).toFixed(1)}% — Even is underrepresented` };
+        setSignal('armed', 'Signal: trade EVEN', state.lastSignal.reason);
       } else {
         state.lastSignal = null;
         setSignal('idle', `No edge yet — Even ${(evenPct*100).toFixed(1)}% / Odd ${(oddPct*100).toFixed(1)}%, need ${(threshold*100).toFixed(0)}%`, '');
@@ -916,24 +517,23 @@
       const relevant = overCount+underCount || 1;
       const overPct = overCount/relevant, underPct = underCount/relevant;
       if(overPct >= threshold){
-        state.lastSignal = { side:'DIGITUNDER', label:`UNDER ${barrier}`, barrier, reason:`Over-${barrier} at ${(overPct*100).toFixed(1)}% — trading Under (mean reversion)` };
-        setSignal('armed', `Signal armed: UNDER ${barrier}`, state.lastSignal.reason);
+        state.lastSignal = { side:`UNDER ${barrier}`, reason:`Over-${barrier} at ${(overPct*100).toFixed(1)}% — trading Under (mean reversion)` };
+        setSignal('armed', `Signal: trade UNDER ${barrier}`, state.lastSignal.reason);
       } else if(underPct >= threshold){
-        state.lastSignal = { side:'DIGITOVER', label:`OVER ${barrier}`, barrier, reason:`Under-${barrier} at ${(underPct*100).toFixed(1)}% — trading Over (mean reversion)` };
-        setSignal('armed', `Signal armed: OVER ${barrier}`, state.lastSignal.reason);
+        state.lastSignal = { side:`OVER ${barrier}`, reason:`Under-${barrier} at ${(underPct*100).toFixed(1)}% — trading Over (mean reversion)` };
+        setSignal('armed', `Signal: trade OVER ${barrier}`, state.lastSignal.reason);
       } else {
         state.lastSignal = null;
         setSignal('idle', `No edge yet — Over ${(overPct*100).toFixed(1)}% / Under ${(underPct*100).toFixed(1)}%, need ${(threshold*100).toFixed(0)}%`, '');
       }
 
     } else if(state.strategy === 'matchdiffer'){
-      // Once a signal arms, hold it steady for a minimum window so a person
-      // watching the screen has time to manually set up and place the trade
-      // themselves — instead of it flickering to a new digit every tick.
+      // Once a signal arms, hold it steady for a minimum window so there's
+      // time to read it and place the trade yourself before it can change.
       const now = Date.now();
-      if(state.lastSignal && state.lastSignal.side && now < state.signalHoldUntil){
+      if(state.lastSignal && state.lastSignal.barrier !== undefined && now < state.signalHoldUntil){
         const remainingMs = state.signalHoldUntil - now;
-        setSignal('armed', `Signal armed: DIFFERS ${state.lastSignal.barrier}`,
+        setSignal('armed', `Signal: trade DIFFERS ${state.lastSignal.barrier}`,
           state.lastSignal.reason + ` · Holding steady for ${(remainingMs/1000).toFixed(1)}s more — plenty of time to set it up and run.`);
         return;
       }
@@ -943,10 +543,10 @@
       const expected = 1/10;
       if((expected - minPct) >= (threshold-0.5)*0.2 || minPct <= (expected*(1.5-threshold+0.5))){
         const isNewSignal = !state.lastSignal || state.lastSignal.barrier !== minD;
-        state.lastSignal = { side:'DIGITDIFF', label:`DIFFERS ${minD}`, barrier:minD, reason:`Digit ${minD} is under-represented at ${(minPct*100).toFixed(1)}% — trading Differs (expect it to keep differing)` };
+        state.lastSignal = { side:`DIFFERS ${minD}`, barrier:minD, reason:`Digit ${minD} is under-represented at ${(minPct*100).toFixed(1)}% — trading Differs (expect it to keep differing)` };
         if(isNewSignal) state.signalHoldUntil = now + state.signalHoldMs;
         const remainingMs = Math.max(0, state.signalHoldUntil - now);
-        setSignal('armed', `Signal armed: DIFFERS ${minD}`,
+        setSignal('armed', `Signal: trade DIFFERS ${minD}`,
           state.lastSignal.reason + ` · Holding steady for ${(remainingMs/1000).toFixed(1)}s more — plenty of time to set it up and run.`);
       } else {
         state.lastSignal = null;
@@ -962,161 +562,30 @@
     els.signalDetail.textContent = detail;
   }
 
-  // ---------------- Risk & trading ----------------
-  function withinRisk(){
-    const target = Number(els.profitTarget.value);
-    const lossPct = Number(els.lossLimit.value);
-    if(target > 0 && state.sessionPL >= target) return {ok:false, reason:'Daily profit target reached'};
-    if(state.sessionStartBalance){
-      const lossLimitAmt = state.sessionStartBalance * (lossPct/100);
-      if(state.sessionPL <= -lossLimitAmt) return {ok:false, reason:'Daily loss limit reached'};
-    }
-    return {ok:true};
-  }
-
-  function maybeTrade(){
-    if(state.pendingProposal) return;
-    if(!state.lastSignal) return;
-    // Don't repeat-fire on the same held signal every tick — act on it once,
-    // then wait for a genuinely new signal.
-    const signalKey = state.lastSignal.side + '_' + (state.lastSignal.barrier ?? '');
-    if(state.lastActedSignalKey === signalKey) return;
-    const risk = withinRisk();
-    if(!risk.ok){
-      stopBot();
-      setSignal('idle', 'Bot stopped: ' + risk.reason, '');
-      return;
-    }
-
-    const baseStake = Number(els.stakeInput.value);
-    const stake = els.martingaleToggle.checked && state.martingale.currentStake !== null
-      ? state.martingale.currentStake
-      : baseStake;
-    const duration = Number(els.durationInput.value);
-    const params = {
-      proposal: 1,
-      amount: stake,
-      basis: 'stake',
-      contract_type: state.lastSignal.side,
-      currency: state.currency,
-      duration: duration,
-      duration_unit: 't',
-      underlying_symbol: els.symbolSelect.value
-    };
-    if(state.lastSignal.barrier !== undefined){
-      params.barrier = String(state.lastSignal.barrier);
-    }
-    state.pendingProposal = true;
-    state.pendingStake = stake;
-    state.lastActedSignalKey = signalKey;
-    send(params);
-    if(els.martingaleToggle.checked){
-      const label = state.martingale.currentStake !== null
-        ? ` · Martingale stake: $${stake.toFixed(2)} (loss streak: ${state.martingale.consecutiveLosses})`
-        : ` · Martingale stake: $${stake.toFixed(2)} (base)`;
-      els.signalDetail.textContent += label;
-    }
-  }
-
-  function logTrade(entry){
-    state.tradeLog.unshift({ ...entry, ts:new Date(), status:'open' });
-    state.tradesToday++;
-    renderLog();
-  }
-
-  function settleTrade(contractId, profit){
-    const row = state.tradeLog.find(t=>t.contractId===contractId);
-    const stakeUsed = row ? row.stakeUsed : Number(els.stakeInput.value);
-    if(row){
-      row.status = profit>=0 ? 'win' : 'loss';
-      row.profit = profit;
-    }
-    state.sessionPL += Number(profit);
-    renderBalance();
-    renderLog();
-
-    if(els.martingaleToggle.checked){
-      const baseStake = Number(els.stakeInput.value);
-      const mult = Number(els.martMultiplier.value);
-      const maxSteps = Number(els.martMaxSteps.value);
-      if(profit >= 0){
-        // win resets the ladder
-        state.martingale.currentStake = null;
-        state.martingale.consecutiveLosses = 0;
-      } else {
-        state.martingale.consecutiveLosses++;
-        if(state.martingale.consecutiveLosses >= maxSteps){
-          // cap reached — reset ladder and stop, don't keep escalating
-          state.martingale.currentStake = null;
-          state.martingale.consecutiveLosses = 0;
-          if(state.running){
-            stopBot();
-            setSignal('idle', `Bot stopped: hit max consecutive losses (${maxSteps}) on the Martingale ladder`, '');
-          }
-        } else {
-          const nextStake = Math.abs(stakeUsed) * mult;
-          state.martingale.currentStake = Math.round(nextStake * 100) / 100;
-        }
-      }
-    }
-
-    const risk = withinRisk();
-    if(!risk.ok && state.running){
-      stopBot();
-      setSignal('idle', 'Bot stopped: ' + risk.reason, '');
-    }
-  }
-
-  function renderLog(){
-    els.tradeCount.textContent = state.tradesToday + ' trades';
-    if(state.tradeLog.length === 0){
-      els.logWrap.innerHTML = '<div class="log-empty">No trades yet this session</div>';
-      return;
-    }
-    let rows = state.tradeLog.slice(0,30).map(t=>{
-      const time = t.ts.toLocaleTimeString();
-      if(t.error){
-        return `<tr><td>${time}</td><td colspan="2" style="color:var(--down)">${t.message}</td></tr>`;
-      }
-      const pillHtml = t.status==='open' ? '<span class="pill" style="background:var(--bg-hover);color:var(--text-secondary)">open</span>'
-        : t.status==='win' ? `<span class="pill win">+$${Number(t.profit).toFixed(2)}</span>`
-        : `<span class="pill loss">$${Number(t.profit).toFixed(2)}</span>`;
-      return `<tr><td>${time}</td><td>${t.contract || ''}</td><td>${pillHtml}</td></tr>`;
-    }).join('');
-    els.logWrap.innerHTML = `<table class="log-table"><thead><tr><th>Time</th><th>Contract</th><th>Result</th></tr></thead><tbody>${rows}</tbody></table>`;
-  }
-
   // ---------------- Start / stop ----------------
-  function startBot(){
-    if(!state.authorized) return;
+  function startAnalysis(){
     state.running = true;
-    state.sessionStartBalance = state.balance;
-    state.martingale.currentStake = null;
-    state.martingale.consecutiveLosses = 0;
     els.btnStart.style.display = 'none';
     els.btnStop.style.display = 'block';
-    [els.symbolSelect,...els.strategyTabs.querySelectorAll('.strategy-tab')].forEach(el=>el.style.pointerEvents='none');
+    connectPublicFeed();
   }
 
-  function stopBot(){
+  function stopAnalysis(){
     state.running = false;
     els.btnStart.style.display = 'block';
     els.btnStop.style.display = 'none';
-    [els.symbolSelect,...els.strategyTabs.querySelectorAll('.strategy-tab')].forEach(el=>el.style.pointerEvents='auto');
+    if(state.ws){
+      state.ws.onclose = null;
+      state.ws.close();
+      state.ws = null;
+    }
+    setConn('idle', 'Disconnected');
   }
 
-  els.btnConnect.addEventListener('click', ()=>connect());
-  els.btnUseAccount.addEventListener('click', ()=>{
-    const idx = Number(els.accountSelect.value);
-    const account = state.accounts[idx];
-    if(account) connectToAccount(account);
-  });
-  els.btnStart.addEventListener('click', startBot);
-  els.btnStop.addEventListener('click', stopBot);
+  els.btnStart.addEventListener('click', startAnalysis);
+  els.btnStop.addEventListener('click', stopAnalysis);
 
   renderTickUI();
-  renderLog();
-  checkOauthReturn();
 })();
 </script>
 </body>
