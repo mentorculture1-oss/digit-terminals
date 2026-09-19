@@ -1,217 +1,238 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Digit Terminal — Deriv Auto-Trading Bot</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digit Terminal · Enhanced Analysis</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
 
-  :root{
-    --bg-base:#05080B;
-    --bg-panel:#080D11;
-    --bg-raised:#0C1318;
-    --bg-hover:#101A21;
-    --border:#12464F;
-    --border-soft:#0D2B31;
-    --text-primary:#CFEFF2;
-    --text-secondary:#5E8A91;
-    --text-dim:#3A5A60;
-    --up:#00E5C7;
-    --up-dim:#062E29;
-    --down:#FF4D6A;
-    --down-dim:#3A0F18;
-    --amber:#FFC94D;
-    --amber-dim:#3A2E0D;
-    --blue:#00D9FF;
-    --blue-dim:#052A30;
-    --radius-sm:2px;
-    --radius-md:2px;
-    --font-ui:'IBM Plex Mono', monospace;
-    --font-mono:'IBM Plex Mono', monospace;
-    --glow:0 0 8px rgba(0,217,255,0.25);
-  }
+    :root{
+      --bg-base:#05080B;
+      --bg-panel:#080D11;
+      --bg-raised:#0C1318;
+      --bg-hover:#101A21;
+      --border:#12464F;
+      --border-soft:#0D2B31;
+      --text-primary:#CFEFF2;
+      --text-secondary:#5E8A91;
+      --text-dim:#3A5A60;
+      --up:#00E5C7;
+      --up-dim:#062E29;
+      --down:#FF4D6A;
+      --down-dim:#3A0F18;
+      --amber:#FFC94D;
+      --amber-dim:#3A2E0D;
+      --blue:#00D9FF;
+      --blue-dim:#052A30;
+      --radius-sm:2px;
+      --radius-md:2px;
+      --font-ui:'IBM Plex Mono', monospace;
+      --font-mono:'IBM Plex Mono', monospace;
+      --glow:0 0 8px rgba(0,217,255,0.25);
+    }
 
-  *{ box-sizing:border-box; }
-  html,body{ margin:0; padding:0; }
-  body{
-    background:
-      radial-gradient(ellipse at top, rgba(0,217,255,0.04), transparent 60%),
-      var(--bg-base);
-    color:var(--text-primary);
-    font-family:var(--font-ui);
-    -webkit-font-smoothing:antialiased;
-    min-height:100vh;
-    letter-spacing:0.02em;
-  }
+    *{ box-sizing:border-box; }
+    html,body{ margin:0; padding:0; }
+    body{
+      background:
+        radial-gradient(ellipse at top, rgba(0,217,255,0.04), transparent 60%),
+        var(--bg-base);
+      color:var(--text-primary);
+      font-family:var(--font-ui);
+      -webkit-font-smoothing:antialiased;
+      min-height:100vh;
+      letter-spacing:0.02em;
+    }
 
-  .app{ max-width:1180px; margin:0 auto; padding:20px 20px 60px; }
+    .app{ max-width:1180px; margin:0 auto; padding:20px 20px 60px; }
 
-  /* ---------- Top bar ---------- */
-  .topbar{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:14px 18px; background:var(--bg-panel);
-    border:1px solid var(--border); border-radius:var(--radius-md);
-    margin-bottom:16px; flex-wrap:wrap; gap:12px;
-  }
-  .brand{ display:flex; align-items:center; gap:10px; }
-  .brand-mark{
-    width:32px; height:32px; border-radius:var(--radius-sm);
-    background:var(--bg-raised); border:1px solid var(--blue);
-    box-shadow:var(--glow);
-    display:flex; align-items:center; justify-content:center;
-    font-family:var(--font-mono); font-weight:700; font-size:13px; color:var(--blue);
-  }
-  .brand-name{ font-weight:700; font-size:16px; letter-spacing:0.08em; color:var(--blue); text-transform:uppercase; text-shadow:var(--glow); }
-  .brand-sub{ color:var(--text-dim); font-size:10.5px; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:0.08em; }
+    /* ---------- Top bar ---------- */
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 18px; background:var(--bg-panel);
+      border:1px solid var(--border); border-radius:var(--radius-md);
+      margin-bottom:16px; flex-wrap:wrap; gap:12px;
+    }
+    .brand{ display:flex; align-items:center; gap:10px; }
+    .brand-mark{
+      width:32px; height:32px; border-radius:var(--radius-sm);
+      background:var(--bg-raised); border:1px solid var(--blue);
+      box-shadow:var(--glow);
+      display:flex; align-items:center; justify-content:center;
+      font-family:var(--font-mono); font-weight:700; font-size:13px; color:var(--blue);
+    }
+    .brand-name{ font-weight:700; font-size:16px; letter-spacing:0.08em; color:var(--blue); text-transform:uppercase; text-shadow:var(--glow); }
+    .brand-sub{ color:var(--text-dim); font-size:10.5px; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:0.08em; }
 
-  .status-cluster{ display:flex; align-items:center; gap:22px; flex-wrap:wrap; }
-  .stat{ text-align:right; }
-  .stat-label{ font-size:10px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.1em; }
-  .stat-value{ font-family:var(--font-mono); font-size:16px; font-weight:700; margin-top:2px; letter-spacing:0.03em; }
-  .stat-value.pos{ color:var(--up); text-shadow:0 0 6px rgba(0,229,199,0.35); }
-  .stat-value.neg{ color:var(--down); text-shadow:0 0 6px rgba(255,77,106,0.35); }
+    .status-cluster{ display:flex; align-items:center; gap:22px; flex-wrap:wrap; }
+    .stat{ text-align:right; }
+    .stat-label{ font-size:10px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.1em; }
+    .stat-value{ font-family:var(--font-mono); font-size:16px; font-weight:700; margin-top:2px; letter-spacing:0.03em; }
+    .stat-value.pos{ color:var(--up); text-shadow:0 0 6px rgba(0,229,199,0.35); }
+    .stat-value.neg{ color:var(--down); text-shadow:0 0 6px rgba(255,77,106,0.35); }
 
-  .conn-pill{
-    display:flex; align-items:center; gap:7px; padding:6px 12px;
-    border-radius:var(--radius-sm); background:var(--bg-raised); border:1px solid var(--border);
-    font-size:11px; font-family:var(--font-mono); color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.08em;
-  }
-  .dot{ width:7px; height:7px; border-radius:50%; background:var(--text-dim); }
-  .dot.live{ background:var(--up); box-shadow:0 0 8px 2px rgba(0,229,199,0.5); }
-  .dot.err{ background:var(--down); box-shadow:0 0 8px 2px rgba(255,77,106,0.5); }
+    .conn-pill{
+      display:flex; align-items:center; gap:7px; padding:6px 12px;
+      border-radius:var(--radius-sm); background:var(--bg-raised); border:1px solid var(--border);
+      font-size:11px; font-family:var(--font-mono); color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.08em;
+    }
+    .dot{ width:7px; height:7px; border-radius:50%; background:var(--text-dim); }
+    .dot.live{ background:var(--up); box-shadow:0 0 8px 2px rgba(0,229,199,0.5); }
+    .dot.err{ background:var(--down); box-shadow:0 0 8px 2px rgba(255,77,106,0.5); }
 
-  /* ---------- Layout ---------- */
-  .grid{ display:grid; grid-template-columns:340px 1fr; gap:16px; }
-  @media (max-width:860px){ .grid{ grid-template-columns:1fr; } }
+    /* ---------- Layout ---------- */
+    .grid{ display:grid; grid-template-columns:340px 1fr; gap:16px; }
+    @media (max-width:860px){ .grid{ grid-template-columns:1fr; } }
 
-  .panel{
-    background:var(--bg-panel); border:1px solid var(--border);
-    border-radius:var(--radius-md); padding:18px; position:relative;
-  }
-  .panel::before{
-    content:''; position:absolute; top:-1px; left:-1px; width:10px; height:10px;
-    border-top:2px solid var(--blue); border-left:2px solid var(--blue); opacity:0.6;
-  }
-  .panel::after{
-    content:''; position:absolute; bottom:-1px; right:-1px; width:10px; height:10px;
-    border-bottom:2px solid var(--blue); border-right:2px solid var(--blue); opacity:0.6;
-  }
-  .panel + .panel{ margin-top:16px; }
-  .panel-title{
-    font-size:11px; text-transform:uppercase; letter-spacing:0.12em;
-    color:var(--blue); margin:0 0 14px; display:flex; justify-content:space-between; align-items:center;
-  }
-  .panel-title::before{ content:'● '; }
+    .panel{
+      background:var(--bg-panel); border:1px solid var(--border);
+      border-radius:var(--radius-md); padding:18px; position:relative;
+    }
+    .panel::before{
+      content:''; position:absolute; top:-1px; left:-1px; width:10px; height:10px;
+      border-top:2px solid var(--blue); border-left:2px solid var(--blue); opacity:0.6;
+    }
+    .panel::after{
+      content:''; position:absolute; bottom:-1px; right:-1px; width:10px; height:10px;
+      border-bottom:2px solid var(--blue); border-right:2px solid var(--blue); opacity:0.6;
+    }
+    .panel + .panel{ margin-top:16px; }
+    .panel-title{
+      font-size:11px; text-transform:uppercase; letter-spacing:0.12em;
+      color:var(--blue); margin:0 0 14px; display:flex; justify-content:space-between; align-items:center;
+    }
+    .panel-title::before{ content:'● '; }
 
-  label{ display:block; font-size:11px; color:var(--text-secondary); margin:0 0 6px; text-transform:uppercase; letter-spacing:0.06em; }
-  .field{ margin-bottom:14px; }
-  .field:last-child{ margin-bottom:0; }
+    label{ display:block; font-size:11px; color:var(--text-secondary); margin:0 0 6px; text-transform:uppercase; letter-spacing:0.06em; }
+    .field{ margin-bottom:14px; }
+    .field:last-child{ margin-bottom:0; }
 
-  input[type=text], input[type=password], input[type=number], select{
-    width:100%; background:var(--bg-raised); border:1px solid var(--border);
-    color:var(--text-primary); padding:9px 10px; border-radius:var(--radius-sm);
-    font-family:var(--font-mono); font-size:13.5px; outline:none;
-    transition:border-color .15s, box-shadow .15s;
-  }
-  input:focus, select:focus{ border-color:var(--blue); box-shadow:var(--glow); }
-  select{ appearance:none; cursor:pointer; }
+    input[type=text], input[type=password], input[type=number], select{
+      width:100%; background:var(--bg-raised); border:1px solid var(--border);
+      color:var(--text-primary); padding:9px 10px; border-radius:var(--radius-sm);
+      font-family:var(--font-mono); font-size:13.5px; outline:none;
+      transition:border-color .15s, box-shadow .15s;
+    }
+    input:focus, select:focus{ border-color:var(--blue); box-shadow:var(--glow); }
+    select{ appearance:none; cursor:pointer; }
 
-  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .row2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 
-  .segmented{ display:flex; background:var(--bg-raised); border:1px solid var(--border); border-radius:var(--radius-sm); padding:3px; gap:3px; }
-  .segmented button{
-    flex:1; padding:8px 6px; background:transparent; border:none; border-radius:1px;
-    color:var(--text-secondary); font-family:var(--font-ui); font-size:12px; font-weight:600;
-    cursor:pointer; transition:all .15s; text-transform:uppercase;
-  }
-  .segmented button.active{ background:var(--blue-dim); color:var(--blue); box-shadow:inset 0 0 0 1px var(--blue); }
-  .segmented button.active.up{ color:var(--up); }
-  .segmented button.active.down{ color:var(--down); }
+    .segmented{ display:flex; background:var(--bg-raised); border:1px solid var(--border); border-radius:var(--radius-sm); padding:3px; gap:3px; }
+    .segmented button{
+      flex:1; padding:8px 6px; background:transparent; border:none; border-radius:1px;
+      color:var(--text-secondary); font-family:var(--font-ui); font-size:12px; font-weight:600;
+      cursor:pointer; transition:all .15s; text-transform:uppercase;
+    }
+    .segmented button.active{ background:var(--blue-dim); color:var(--blue); box-shadow:inset 0 0 0 1px var(--blue); }
+    .segmented button.active.up{ color:var(--up); }
+    .segmented button.active.down{ color:var(--down); }
 
-  .strategy-tabs{ display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
-  .strategy-tab{
-    padding:8px 14px; border-radius:var(--radius-sm); border:1px solid var(--border);
-    background:var(--bg-raised); color:var(--text-secondary); font-size:11.5px;
-    font-family:var(--font-mono); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;
-    cursor:pointer; transition:all .15s;
-  }
-  .strategy-tab.active{ border-color:var(--blue); color:var(--blue); background:var(--blue-dim); box-shadow:var(--glow); }
+    .strategy-tabs{ display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
+    .strategy-tab{
+      padding:8px 14px; border-radius:var(--radius-sm); border:1px solid var(--border);
+      background:var(--bg-raised); color:var(--text-secondary); font-size:11.5px;
+      font-family:var(--font-mono); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;
+      cursor:pointer; transition:all .15s;
+    }
+    .strategy-tab.active{ border-color:var(--blue); color:var(--blue); background:var(--blue-dim); box-shadow:var(--glow); }
 
-  .slider-row{ display:flex; align-items:center; gap:10px; }
-  input[type=range]{ flex:1; accent-color:var(--amber); }
-  .slider-val{ font-family:var(--font-mono); font-size:13px; color:var(--amber); min-width:40px; text-align:right; font-weight:700; }
+    .slider-row{ display:flex; align-items:center; gap:10px; }
+    input[type=range]{ flex:1; accent-color:var(--amber); }
+    .slider-val{ font-family:var(--font-mono); font-size:13px; color:var(--amber); min-width:40px; text-align:right; font-weight:700; }
 
-  .hint{ font-size:11px; color:var(--text-dim); margin-top:6px; line-height:1.5; }
+    .hint{ font-size:11px; color:var(--text-dim); margin-top:6px; line-height:1.5; }
 
-  .btn{
-    width:100%; padding:12px; border-radius:var(--radius-sm); border:1px solid transparent;
-    font-family:var(--font-ui); font-weight:700; font-size:13px; cursor:pointer;
-    transition:filter .15s, transform .05s; text-transform:uppercase; letter-spacing:0.06em;
-  }
-  .btn:active{ transform:scale(0.99); }
-  .btn-start{ background:var(--up-dim); color:var(--up); border-color:var(--up); box-shadow:0 0 10px rgba(0,229,199,0.15); }
-  .btn-start:hover{ box-shadow:0 0 14px rgba(0,229,199,0.3); }
-  .btn-stop{ background:var(--down-dim); color:var(--down); border-color:var(--down); box-shadow:0 0 10px rgba(255,77,106,0.15); }
-  .btn-stop:hover{ box-shadow:0 0 14px rgba(255,77,106,0.3); }
-  .btn-ghost{ background:var(--blue-dim); border:1px solid var(--blue); color:var(--blue); }
-  .btn-ghost:hover{ box-shadow:var(--glow); }
-  .btn:disabled{ opacity:0.35; cursor:not-allowed; box-shadow:none; }
+    .btn{
+      width:100%; padding:12px; border-radius:var(--radius-sm); border:1px solid transparent;
+      font-family:var(--font-ui); font-weight:700; font-size:13px; cursor:pointer;
+      transition:filter .15s, transform .05s; text-transform:uppercase; letter-spacing:0.06em;
+    }
+    .btn:active{ transform:scale(0.99); }
+    .btn-start{ background:var(--up-dim); color:var(--up); border-color:var(--up); box-shadow:0 0 10px rgba(0,229,199,0.15); }
+    .btn-start:hover{ box-shadow:0 0 14px rgba(0,229,199,0.3); }
+    .btn-stop{ background:var(--down-dim); color:var(--down); border-color:var(--down); box-shadow:0 0 10px rgba(255,77,106,0.15); }
+    .btn-stop:hover{ box-shadow:0 0 14px rgba(255,77,106,0.3); }
+    .btn-ghost{ background:var(--blue-dim); border:1px solid var(--blue); color:var(--blue); }
+    .btn-ghost:hover{ box-shadow:var(--glow); }
+    .btn:disabled{ opacity:0.35; cursor:not-allowed; box-shadow:none; }
 
-  /* ---------- Digit histogram ---------- */
-  .digit-grid{ display:grid; grid-template-columns:repeat(10,1fr); gap:6px; align-items:end; height:130px; margin:6px 0 4px; }
-  .digit-col{ display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
-  .digit-bar{ width:100%; background:var(--bg-hover); border-radius:1px 1px 0 0; transition:height .3s ease; min-height:3px; border:1px solid var(--border); border-bottom:none; }
-  .digit-bar.even{ background:var(--up-dim); border-color:var(--up); box-shadow:0 0 6px rgba(0,229,199,0.2); }
-  .digit-bar.odd{ background:var(--down-dim); border-color:var(--down); box-shadow:0 0 6px rgba(255,77,106,0.2); }
-  .digit-label{ font-family:var(--font-mono); font-size:11px; color:var(--text-dim); margin-top:6px; }
-  .digit-pct{ font-family:var(--font-mono); font-size:9.5px; color:var(--text-dim); margin-bottom:4px; }
+    /* ---------- Digit histogram ---------- */
+    .digit-grid{ display:grid; grid-template-columns:repeat(10,1fr); gap:6px; align-items:end; height:130px; margin:6px 0 4px; }
+    .digit-col{ display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
+    .digit-bar{ width:100%; background:var(--bg-hover); border-radius:1px 1px 0 0; transition:height .3s ease; min-height:3px; border:1px solid var(--border); border-bottom:none; }
+    .digit-bar.even{ background:var(--up-dim); border-color:var(--up); box-shadow:0 0 6px rgba(0,229,199,0.2); }
+    .digit-bar.odd{ background:var(--down-dim); border-color:var(--down); box-shadow:0 0 6px rgba(255,77,106,0.2); }
+    .digit-label{ font-family:var(--font-mono); font-size:11px; color:var(--text-dim); margin-top:6px; }
+    .digit-pct{ font-family:var(--font-mono); font-size:9.5px; color:var(--text-dim); margin-bottom:4px; }
 
-  .tick-tape{
-    display:flex; gap:5px; overflow-x:auto; padding:10px 0; scrollbar-width:none;
-  }
-  .tick-tape::-webkit-scrollbar{ display:none; }
-  .tick-chip{
-    flex:0 0 auto; width:26px; height:26px; border-radius:var(--radius-sm);
-    display:flex; align-items:center; justify-content:center;
-    font-family:var(--font-mono); font-size:12px; font-weight:700;
-    background:var(--bg-raised); color:var(--text-secondary); border:1px solid var(--border);
-  }
-  .tick-chip.even{ color:var(--up); border-color:var(--up); }
-  .tick-chip.odd{ color:var(--down); border-color:var(--down); }
+    .tick-tape{
+      display:flex; gap:5px; overflow-x:auto; padding:10px 0; scrollbar-width:none;
+    }
+    .tick-tape::-webkit-scrollbar{ display:none; }
+    .tick-chip{
+      flex:0 0 auto; width:26px; height:26px; border-radius:var(--radius-sm);
+      display:flex; align-items:center; justify-content:center;
+      font-family:var(--font-mono); font-size:12px; font-weight:700;
+      background:var(--bg-raised); color:var(--text-secondary); border:1px solid var(--border);
+    }
+    .tick-chip.even{ color:var(--up); border-color:var(--up); }
+    .tick-chip.odd{ color:var(--down); border-color:var(--down); }
 
-  .signal-banner{
-    display:flex; align-items:center; gap:10px; padding:11px 14px;
-    border-radius:var(--radius-sm); margin-bottom:14px; font-size:13px;
-    background:var(--bg-raised); border:1px solid var(--border); color:var(--text-secondary);
-    font-family:var(--font-mono);
-  }
-  .signal-banner.armed{ border-color:var(--amber); background:var(--amber-dim); color:#FFE1A0; box-shadow:0 0 10px rgba(255,201,77,0.15); }
-  .signal-banner.fired-up{ border-color:var(--up); background:var(--up-dim); color:#B7F3E1; }
-  .signal-banner.fired-down{ border-color:var(--down); background:var(--down-dim); color:#FFC6CC; }
+    .signal-banner{
+      display:flex; align-items:center; gap:10px; padding:11px 14px;
+      border-radius:var(--radius-sm); margin-bottom:14px; font-size:13px;
+      background:var(--bg-raised); border:1px solid var(--border); color:var(--text-secondary);
+      font-family:var(--font-mono);
+    }
+    .signal-banner.armed{ border-color:var(--amber); background:var(--amber-dim); color:#FFE1A0; box-shadow:0 0 10px rgba(255,201,77,0.15); }
+    .signal-banner.fired-up{ border-color:var(--up); background:var(--up-dim); color:#B7F3E1; }
+    .signal-banner.fired-down{ border-color:var(--down); background:var(--down-dim); color:#FFC6CC; }
 
-  /* ---------- Log ---------- */
-  .log-table{ width:100%; border-collapse:collapse; font-family:var(--font-mono); font-size:12px; }
-  .log-table th{
-    text-align:left; color:var(--text-dim); font-weight:600; font-size:10px;
-    text-transform:uppercase; letter-spacing:0.08em; padding:0 8px 8px; border-bottom:1px solid var(--border);
-  }
-  .log-table td{ padding:8px; border-bottom:1px solid var(--border-soft); color:var(--text-secondary); }
-  .log-table tr:last-child td{ border-bottom:none; }
-  .log-empty{ color:var(--text-dim); text-align:center; padding:24px 0; font-family:var(--font-mono); font-size:12px; text-transform:uppercase; letter-spacing:0.06em; }
-  .pill{ padding:2px 8px; border-radius:var(--radius-sm); font-size:11px; font-weight:700; border:1px solid transparent; }
-  .pill.win{ background:var(--up-dim); color:var(--up); border-color:var(--up); }
-  .pill.loss{ background:var(--down-dim); color:var(--down); border-color:var(--down); }
+    /* ---------- Log ---------- */
+    .log-table{ width:100%; border-collapse:collapse; font-family:var(--font-mono); font-size:12px; }
+    .log-table th{
+      text-align:left; color:var(--text-dim); font-weight:600; font-size:10px;
+      text-transform:uppercase; letter-spacing:0.08em; padding:0 8px 8px; border-bottom:1px solid var(--border);
+    }
+    .log-table td{ padding:8px; border-bottom:1px solid var(--border-soft); color:var(--text-secondary); }
+    .log-table tr:last-child td{ border-bottom:none; }
+    .log-empty{ color:var(--text-dim); text-align:center; padding:24px 0; font-family:var(--font-mono); font-size:12px; text-transform:uppercase; letter-spacing:0.06em; }
+    .pill{ padding:2px 8px; border-radius:var(--radius-sm); font-size:11px; font-weight:700; border:1px solid transparent; }
+    .pill.win{ background:var(--up-dim); color:var(--up); border-color:var(--up); }
+    .pill.loss{ background:var(--down-dim); color:var(--down); border-color:var(--down); }
 
-  .warning-box{
-    background:var(--amber-dim); border:1px solid var(--amber); color:#FFE1A0;
-    border-radius:var(--radius-sm); padding:12px 14px; font-size:12px; line-height:1.55;
-    margin-bottom:16px; font-family:var(--font-mono);
-  }
-  .warning-box b{ color:var(--amber); }
+    .warning-box{
+      background:var(--amber-dim); border:1px solid var(--amber); color:#FFE1A0;
+      border-radius:var(--radius-sm); padding:12px 14px; font-size:12px; line-height:1.55;
+      margin-bottom:16px; font-family:var(--font-mono);
+    }
+    .warning-box b{ color:var(--amber); }
 
-  .footer-note{ color:var(--text-dim); font-size:10.5px; text-align:center; margin-top:26px; line-height:1.6; text-transform:uppercase; letter-spacing:0.06em; font-family:var(--font-mono); }
-</style>
+    .footer-note{ color:var(--text-dim); font-size:10.5px; text-align:center; margin-top:26px; line-height:1.6; text-transform:uppercase; letter-spacing:0.06em; font-family:var(--font-mono); }
+
+    /* ---------- Additional accuracy panel ---------- */
+    .metric-row {
+      display: flex; justify-content: space-between; padding: 6px 0;
+      border-bottom: 1px solid var(--border-soft);
+      font-size: 12px; font-family: var(--font-mono);
+    }
+    .metric-row:last-child { border-bottom: none; }
+    .metric-label { color: var(--text-secondary); }
+    .metric-value { color: var(--blue); font-weight: 600; }
+    .metric-value.amber { color: var(--amber); }
+    .metric-value.up { color: var(--up); }
+    .metric-value.down { color: var(--down); }
+
+    .badge {
+      display: inline-block; padding: 2px 6px; border-radius: 2px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+    }
+    .badge.high { background: var(--up-dim); color: var(--up); border:1px solid var(--up); }
+    .badge.medium { background: var(--amber-dim); color: var(--amber); border:1px solid var(--amber); }
+    .badge.low { background: var(--down-dim); color: var(--down); border:1px solid var(--down); }
+  </style>
 </head>
 <body>
 <div class="app">
@@ -220,7 +241,7 @@
     <div class="brand">
       <div class="brand-mark">DZ</div>
       <div>
-        <div class="brand-name">Digit Terminal</div>
+        <div class="brand-name">Digit Terminal · Enhanced</div>
         <div class="brand-sub">deriv synthetic index digit analysis</div>
       </div>
     </div>
@@ -268,15 +289,15 @@
         <div class="field">
           <label>Confidence threshold — how far digit frequency must drift from expected before a signal arms</label>
           <div class="slider-row">
-            <input type="range" id="confSlider" min="52" max="85" value="62">
-            <div class="slider-val" id="confVal">62%</div>
+            <input type="range" id="confSlider" min="52" max="85" value="65">
+            <div class="slider-val" id="confVal">65%</div>
           </div>
           <div class="hint">Higher = fewer, more selective signals. Lower = more frequent signals on smaller edges.</div>
         </div>
 
         <div class="field">
           <label for="lookback">Tick lookback window</label>
-          <input type="number" id="lookback" value="100" min="20" max="1000" step="10">
+          <input type="number" id="lookback" value="120" min="30" max="1000" step="10">
         </div>
       </div>
 
@@ -302,6 +323,30 @@
         <div class="signal-banner" id="signalBanner">Waiting for enough tick data to evaluate a signal…</div>
         <div class="hint" id="signalDetail"></div>
       </div>
+
+      <!-- Enhanced accuracy metrics panel -->
+      <div class="panel">
+        <div class="panel-title">Statistical accuracy metrics</div>
+        <div id="accuracyMetrics">
+          <div class="metric-row">
+            <span class="metric-label">Chi-square (uniformity)</span>
+            <span class="metric-value" id="chiValue">—</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Bias confidence</span>
+            <span class="metric-value" id="biasConfidence">—</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Recommended threshold</span>
+            <span class="metric-value amber" id="recThreshold">—</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Digit stability (10-tick)</span>
+            <span class="metric-value" id="digitStability">—</span>
+          </div>
+        </div>
+        <div class="hint" style="margin-top:10px;">Higher chi-square & bias confidence = stronger statistical signal. Recommended threshold adjusts dynamically.</div>
+      </div>
     </div>
   </div>
 
@@ -320,7 +365,10 @@
     strategy:'evenodd',
     lastSignal:null,
     signalHoldUntil:0,
-    signalHoldMs:5000,
+    signalHoldMs:7000, // extended hold for better reaction time
+    tickHistory: [],   // full tick array for rolling metrics
+    lastDigitCounts: Array(10).fill(0),
+    biasConfidence: 0,
   };
 
   const els = {
@@ -339,6 +387,11 @@
     tickCount: document.getElementById('tickCount'),
     signalBanner: document.getElementById('signalBanner'),
     signalDetail: document.getElementById('signalDetail'),
+    // accuracy metrics
+    chiValue: document.getElementById('chiValue'),
+    biasConfidence: document.getElementById('biasConfidence'),
+    recThreshold: document.getElementById('recThreshold'),
+    digitStability: document.getElementById('digitStability'),
   };
 
   // ---------------- Strategy extra fields ----------------
@@ -378,10 +431,7 @@
     evaluateSignal();
   });
 
-  // ---------------- Public tick feed (no login, no account access) ----------------
-  // Live price data on Deriv's synthetic indices is public — reading it needs no
-  // token, no OAuth, no backend. Only placing trades would need that, and this
-  // tool doesn't place trades: it just shows you the signal to act on yourself.
+  // ---------------- Public tick feed ----------------
   const PUBLIC_APP_ID = '1089';
 
   function connectPublicFeed(){
@@ -425,7 +475,11 @@
 
   function subscribeTicks(){
     state.ticks = [];
+    state.tickHistory = [];
+    state.lastDigitCounts = Array(10).fill(0);
+    state.biasConfidence = 0;
     renderTickUI();
+    updateAccuracyMetrics();
     send({ ticks: els.symbolSelect.value, subscribe: 1 });
   }
 
@@ -436,7 +490,7 @@
     }
   });
 
-  // ---------------- Tick handling ----------------
+  // ---------------- Tick handling with enhanced statistics ----------------
   function lastDigitFromQuote(quoteStr, pipSize){
     const decimals = pipSize ? Math.round(-Math.log10(pipSize)) : 2;
     const fixed = Number(quoteStr).toFixed(decimals);
@@ -446,10 +500,18 @@
   function onTick(tick){
     const digit = lastDigitFromQuote(tick.quote, tick.pip_size);
     state.ticks.push(digit);
-    const maxLen = Math.max(20, Number(els.lookback.value) || 100);
+    const maxLen = Math.max(30, Number(els.lookback.value) || 120);
     if(state.ticks.length > maxLen) state.ticks.shift();
 
+    // Keep full tick history for rolling stats (up to 1000)
+    state.tickHistory.push(digit);
+    if(state.tickHistory.length > 1000) state.tickHistory.shift();
+
+    // Update digit counts for metrics
+    state.lastDigitCounts[digit]++;
+
     renderTickUI();
+    updateAccuracyMetrics();
     evaluateSignal();
   }
 
@@ -481,29 +543,113 @@
     els.tickTape.scrollLeft = els.tickTape.scrollWidth;
   }
 
-  // ---------------- Signal engine ----------------
+  // ---------------- Enhanced accuracy metrics ----------------
+  function updateAccuracyMetrics(){
+    const n = state.ticks.length;
+    if(n < 10){
+      els.chiValue.textContent = '—';
+      els.biasConfidence.textContent = '—';
+      els.recThreshold.textContent = '—';
+      els.digitStability.textContent = '—';
+      return;
+    }
+
+    const counts = Array(10).fill(0);
+    state.ticks.forEach(d=>counts[d]++);
+    const expected = n / 10;
+
+    // Chi-square statistic
+    let chiSq = 0;
+    for(let d=0; d<10; d++){
+      const diff = counts[d] - expected;
+      chiSq += (diff * diff) / expected;
+    }
+
+    // Map chi-square to a qualitative confidence (for 9 df, critical values: 16.92 @ 0.05, 21.67 @ 0.01)
+    let biasLevel = 'low';
+    let biasText = 'Low';
+    if(chiSq > 21.67) { biasLevel = 'high'; biasText = 'High (p<0.01)'; }
+    else if(chiSq > 16.92) { biasLevel = 'medium'; biasText = 'Medium (p<0.05)'; }
+    else if(chiSq > 10.0) { biasLevel = 'medium'; biasText = 'Moderate'; }
+
+    // Recommended threshold based on chi-square: stronger bias -> can use lower threshold
+    let recThresh = 65;
+    if(chiSq > 25) recThresh = 58;
+    else if(chiSq > 20) recThresh = 60;
+    else if(chiSq > 15) recThresh = 62;
+    else if(chiSq > 10) recThresh = 64;
+
+    // Digit stability: how much the distribution changed over last 10 ticks
+    let stability = 0;
+    if(state.tickHistory.length >= 20){
+      const recent = state.tickHistory.slice(-10);
+      const prev = state.tickHistory.slice(-20, -10);
+      const recentCounts = Array(10).fill(0);
+      const prevCounts = Array(10).fill(0);
+      recent.forEach(d=>recentCounts[d]++);
+      prev.forEach(d=>prevCounts[d]++);
+      let diffSum = 0;
+      for(let d=0; d<10; d++){
+        diffSum += Math.abs((recentCounts[d]/10) - (prevCounts[d]/10));
+      }
+      stability = diffSum / 2; // 0 = perfectly stable, 1 = completely different
+    }
+
+    // Update UI
+    els.chiValue.textContent = chiSq.toFixed(2);
+    els.biasConfidence.innerHTML = `<span class="badge ${biasLevel}">${biasText}</span>`;
+    els.recThreshold.textContent = recThresh + '%';
+    els.digitStability.textContent = (stability * 100).toFixed(0) + '% change';
+
+    // Auto-adjust slider if user hasn't manually overridden in last 5 seconds
+    if(!els.confSlider.dataset.manual || (Date.now() - Number(els.confSlider.dataset.manual)) > 5000){
+      if(Number(els.confSlider.value) !== recThresh){
+        els.confSlider.value = recThresh;
+        els.confVal.textContent = recThresh + '%';
+      }
+    }
+  }
+
+  // Allow manual override of threshold
+  els.confSlider.addEventListener('input', ()=>{
+    els.confSlider.dataset.manual = Date.now();
+  });
+
+  // ---------------- Signal engine with improved logic ----------------
   function evaluateSignal(){
-    const minTicks = 20;
+    const minTicks = 30; // increased for better statistical significance
     if(state.ticks.length < minTicks){
       setSignal('idle', `Waiting for at least ${minTicks} ticks (have ${state.ticks.length})…`, '');
       state.lastSignal = null;
       return;
     }
 
-    const threshold = Number(els.confSlider.value) / 100;
+    // Use adaptive threshold: if bias is strong, we can be more lenient
+    let threshold = Number(els.confSlider.value) / 100;
+    const n = state.ticks.length;
     const counts = Array(10).fill(0);
     state.ticks.forEach(d=>counts[d]++);
-    const n = state.ticks.length;
+
+    // Calculate chi-square for adaptive adjustment
+    const expected = n / 10;
+    let chiSq = 0;
+    for(let d=0; d<10; d++){
+      const diff = counts[d] - expected;
+      chiSq += (diff * diff) / expected;
+    }
+    // If chi-square is high (strong bias), slightly lower threshold to catch signal earlier
+    if(chiSq > 20) threshold = Math.max(0.52, threshold - 0.03);
+    else if(chiSq > 15) threshold = Math.max(0.54, threshold - 0.015);
 
     if(state.strategy === 'evenodd'){
       const evenCount = counts.filter((_,d)=>d%2===0).reduce((a,b)=>a+b,0);
       const evenPct = evenCount/n;
       const oddPct = 1-evenPct;
       if(evenPct >= threshold){
-        state.lastSignal = { side:'ODD', reason:`Even digits at ${(evenPct*100).toFixed(1)}% — Odd is underrepresented` };
+        state.lastSignal = { side:'ODD', reason:`Even digits at ${(evenPct*100).toFixed(1)}% — Odd is underrepresented (chi²=${chiSq.toFixed(1)})` };
         setSignal('armed', 'Signal: trade ODD', state.lastSignal.reason);
       } else if(oddPct >= threshold){
-        state.lastSignal = { side:'EVEN', reason:`Odd digits at ${(oddPct*100).toFixed(1)}% — Even is underrepresented` };
+        state.lastSignal = { side:'EVEN', reason:`Odd digits at ${(oddPct*100).toFixed(1)}% — Even is underrepresented (chi²=${chiSq.toFixed(1)})` };
         setSignal('armed', 'Signal: trade EVEN', state.lastSignal.reason);
       } else {
         state.lastSignal = null;
@@ -528,8 +674,7 @@
       }
 
     } else if(state.strategy === 'matchdiffer'){
-      // Once a signal arms, hold it steady for a minimum window so there's
-      // time to read it and place the trade yourself before it can change.
+      // Hold signal steady for a minimum window
       const now = Date.now();
       if(state.lastSignal && state.lastSignal.barrier !== undefined && now < state.signalHoldUntil){
         const remainingMs = state.signalHoldUntil - now;
@@ -540,14 +685,22 @@
 
       let minD=0; for(let d=1;d<10;d++) if(counts[d]<counts[minD]) minD=d;
       const minPct = counts[minD]/n;
-      const expected = 1/10;
-      if((expected - minPct) >= (threshold-0.5)*0.2 || minPct <= (expected*(1.5-threshold+0.5))){
+      const expectedPct = 1/10;
+      
+      // Improved condition: use chi-square and deviation from expected
+      const deviation = expectedPct - minPct;
+      // More selective: require at least 2.5% below expected (was more lenient before)
+      if(deviation >= 0.025 || (chiSq > 12 && minPct < 0.08)){
         const isNewSignal = !state.lastSignal || state.lastSignal.barrier !== minD;
-        state.lastSignal = { side:`DIFFERS ${minD}`, barrier:minD, reason:`Digit ${minD} is under-represented at ${(minPct*100).toFixed(1)}% — trading Differs (expect it to keep differing)` };
+        state.lastSignal = { 
+          side:`DIFFERS ${minD}`, 
+          barrier:minD, 
+          reason:`Digit ${minD} underrepresented at ${(minPct*100).toFixed(1)}% (expected 10%) — chi²=${chiSq.toFixed(1)}` 
+        };
         if(isNewSignal) state.signalHoldUntil = now + state.signalHoldMs;
         const remainingMs = Math.max(0, state.signalHoldUntil - now);
         setSignal('armed', `Signal: trade DIFFERS ${minD}`,
-          state.lastSignal.reason + ` · Holding steady for ${(remainingMs/1000).toFixed(1)}s more — plenty of time to set it up and run.`);
+          state.lastSignal.reason + ` · Holding steady for ${(remainingMs/1000).toFixed(1)}s more.`);
       } else {
         state.lastSignal = null;
         state.signalHoldUntil = 0;
@@ -585,7 +738,9 @@
   els.btnStart.addEventListener('click', startAnalysis);
   els.btnStop.addEventListener('click', stopAnalysis);
 
+  // ---------------- Initial render ----------------
   renderTickUI();
+  updateAccuracyMetrics();
 })();
 </script>
 </body>
