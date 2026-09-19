@@ -315,6 +315,8 @@
 (function(){
   // ---------------- CONFIG ----------------
   const APP_ID = '34nCrHkce65Z7N2Yy987vr';
+
+  // Correct OAuth endpoint — must be oauth.deriv.com, NOT deriv.com
   const OAUTH_URL = 'https://oauth.deriv.com/oauth2/authorize?app_id=' + APP_ID;
 
   // ---------------- State ----------------
@@ -358,14 +360,12 @@
   };
 
   // ---------------- OAuth token pickup ----------------
-  // Deriv returns the token in the URL fragment: #token1=xxx&acct1=CRxxxx
   function pickUpTokenFromHash(){
     const hash = window.location.hash.substring(1);
     if(!hash) return null;
     const params = new URLSearchParams(hash);
     const token = params.get('token1');
     if(token){
-      // Clean the URL so the token isn't visible or re-used on refresh
       window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
       return token;
     }
@@ -383,8 +383,6 @@
   // ---------------- Login button ----------------
   els.btnLogin.addEventListener('click', ()=>{
     if(state.loggedIn) return;
-    // Send user to Deriv OAuth. They'll be redirected back to this page
-    // with #token1=... in the URL after they approve access.
     window.location.href = OAUTH_URL;
   });
 
@@ -426,7 +424,7 @@
     evaluateSignal();
   });
 
-  // ---------------- WebSocket connection ----------------
+  // ---------------- WebSocket ----------------
   function connect(){
     showError('');
     setConn('connecting', 'Connecting…');
@@ -436,7 +434,6 @@
 
     state.ws.onopen = ()=>{
       setConn('live', 'Connected');
-      // If we have a token, authorize first so 1-second symbols are unlocked
       if(state.token){
         send({ authorize: state.token });
       } else {
@@ -452,8 +449,7 @@
         console.error('Deriv API error:', data.error);
         showError(`Deriv API error: ${data.error.message || data.error.code}`);
         setConn('err', 'API error');
-        // If authorize failed, fall back to public feed
-        if(data.msg_type === 'authorize' || (data.error.code && data.error.code.indexOf('Authorization') === 0)){
+        if(data.msg_type === 'authorize'){
           state.token = null;
           state.loggedIn = false;
           els.btnLogin.textContent = 'Login with Deriv';
@@ -463,7 +459,6 @@
         return;
       }
 
-      // After authorize succeeds, subscribe to ticks
       if(data.msg_type === 'authorize' && data.authorize){
         setConn('live', 'Connected (authorized)');
         subscribeTicks();
@@ -519,23 +514,18 @@
 
   function subscribeTicks(){
     send({ forget_all: 'ticks' });
-
     state.ticks = [];
     state.tickHistory = [];
     state.lastSignal = null;
     state.signalHoldUntil = 0;
-
     renderTickUI();
     updateAccuracyMetrics();
     setSignal('idle', 'Waiting for enough tick data to evaluate a signal…', '');
-
     send({ ticks: els.symbolSelect.value, subscribe: 1 });
   }
 
   els.symbolSelect.addEventListener('change', ()=>{
-    if(state.running){
-      subscribeTicks();
-    }
+    if(state.running) subscribeTicks();
   });
 
   // ---------------- Tick handling ----------------
@@ -563,7 +553,6 @@
 
   function renderTickUI(){
     els.tickCount.textContent = state.ticks.length + ' ticks';
-
     const counts = Array(10).fill(0);
     state.ticks.forEach(d=>counts[d]++);
     const total = state.ticks.length || 1;
@@ -589,7 +578,6 @@
     els.tickTape.scrollLeft = els.tickTape.scrollWidth;
   }
 
-  // ---------------- Statistical metrics ----------------
   function updateAccuracyMetrics(){
     const n = state.ticks.length;
     if(n < 10){
@@ -599,17 +587,14 @@
       els.digitStability.textContent = '—';
       return;
     }
-
     const counts = Array(10).fill(0);
     state.ticks.forEach(d=>counts[d]++);
     const expected = n / 10;
-
     let chiSq = 0;
     for(let d=0; d<10; d++){
       const diff = counts[d] - expected;
       chiSq += (diff * diff) / expected;
     }
-
     let biasLevel = 'low';
     let biasText = 'Low';
     if(chiSq > 21.67) { biasLevel = 'high'; biasText = 'High (p<0.01)'; }
@@ -650,7 +635,6 @@
     }
   }
 
-  // ---------------- Signal engine ----------------
   function evaluateSignal(){
     const minTicks = 30;
     if(state.ticks.length < minTicks){
@@ -658,12 +642,10 @@
       state.lastSignal = null;
       return;
     }
-
     let threshold = Number(els.confSlider.value) / 100;
     const n = state.ticks.length;
     const counts = Array(10).fill(0);
     state.ticks.forEach(d=>counts[d]++);
-
     const expected = n / 10;
     let chiSq = 0;
     for(let d=0; d<10; d++){
@@ -687,7 +669,6 @@
         state.lastSignal = null;
         setSignal('idle', `No edge yet — Even ${(evenPct*100).toFixed(1)}% / Odd ${(oddPct*100).toFixed(1)}%, need ${(threshold*100).toFixed(0)}%`, '');
       }
-
     } else if(state.strategy === 'overunder'){
       const barrier = Number(document.getElementById('barrierInput')?.value || 5);
       const overCount = counts.filter((_,d)=>d>barrier).reduce((a,b)=>a+b,0);
@@ -704,7 +685,6 @@
         state.lastSignal = null;
         setSignal('idle', `No edge yet — Over ${(overPct*100).toFixed(1)}% / Under ${(underPct*100).toFixed(1)}%, need ${(threshold*100).toFixed(0)}%`, '');
       }
-
     } else if(state.strategy === 'matchdiffer'){
       const now = Date.now();
       if(state.lastSignal && state.lastSignal.barrier !== undefined && now < state.signalHoldUntil){
@@ -713,12 +693,10 @@
           state.lastSignal.reason + ` · Holding steady for ${(remainingMs/1000).toFixed(1)}s more.`);
         return;
       }
-
       let minD = 0;
       for(let d=1; d<10; d++) if(counts[d] < counts[minD]) minD = d;
       const minPct = counts[minD]/n;
       const expectedPct = 1/10;
-
       const deviation = expectedPct - minPct;
       if(deviation >= 0.025 || (chiSq > 12 && minPct < 0.08)){
         const isNewSignal = !state.lastSignal || state.lastSignal.barrier !== minD;
@@ -745,7 +723,6 @@
     els.signalDetail.textContent = detail;
   }
 
-  // ---------------- Start / stop ----------------
   function startAnalysis(){
     state.running = true;
     els.btnStart.style.display = 'none';
