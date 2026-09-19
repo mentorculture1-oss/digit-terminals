@@ -29,19 +29,15 @@
     --radius-md:10px;
     --radius-lg:14px;
     --shadow-sm:0 1px 2px rgba(0,0,0,0.04);
-    --shadow-md:0 4px 12px rgba(0,0,0,0.06);
     --font-ui:'Inter', -apple-system, sans-serif;
     --font-mono:'JetBrains Mono', monospace;
   }
 
   *{ box-sizing:border-box; margin:0; padding:0; }
   body{
-    background:var(--bg-body);
-    color:var(--text-primary);
-    font-family:var(--font-ui);
-    -webkit-font-smoothing:antialiased;
-    min-height:100vh;
-    line-height:1.5;
+    background:var(--bg-body); color:var(--text-primary);
+    font-family:var(--font-ui); -webkit-font-smoothing:antialiased;
+    min-height:100vh; line-height:1.5;
   }
 
   .app{ max-width:1200px; margin:0 auto; padding:24px 20px 60px; }
@@ -50,8 +46,7 @@
     display:flex; align-items:center; justify-content:space-between;
     padding:16px 24px; background:var(--bg-card);
     border:1px solid var(--border); border-radius:var(--radius-lg);
-    margin-bottom:20px; flex-wrap:wrap; gap:12px;
-    box-shadow:var(--shadow-sm);
+    margin-bottom:20px; flex-wrap:wrap; gap:12px; box-shadow:var(--shadow-sm);
   }
   .brand{ display:flex; align-items:center; gap:12px; }
   .brand-mark{
@@ -60,10 +55,10 @@
     display:flex; align-items:center; justify-content:center;
     font-family:var(--font-mono); font-weight:700; font-size:14px; color:#fff;
   }
-  .brand-name{ font-weight:700; font-size:16px; color:var(--text-primary); }
+  .brand-name{ font-weight:700; font-size:16px; }
   .brand-sub{ color:var(--text-muted); font-size:12px; font-weight:500; }
 
-  .status-cluster{ display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+  .status-cluster{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
   .conn-pill{
     display:flex; align-items:center; gap:8px; padding:8px 14px;
     border-radius:20px; background:var(--bg-subtle); border:1px solid var(--border);
@@ -74,13 +69,20 @@
   .dot.err{ background:var(--down); box-shadow:0 0 0 3px var(--down-light); }
   .dot.warn{ background:var(--amber); box-shadow:0 0 0 3px var(--amber-light); }
 
+  .btn-login{
+    padding:8px 16px; border-radius:20px; border:none;
+    background:var(--accent); color:#fff; font-weight:600; font-size:12px;
+    cursor:pointer; transition:all .15s;
+  }
+  .btn-login:hover{ background:#2563EB; }
+  .btn-login.logged{ background:var(--up); cursor:default; }
+
   .grid{ display:grid; grid-template-columns:360px 1fr; gap:20px; }
   @media (max-width:900px){ .grid{ grid-template-columns:1fr; } }
 
   .panel{
     background:var(--bg-card); border:1px solid var(--border);
-    border-radius:var(--radius-lg); padding:20px;
-    box-shadow:var(--shadow-sm);
+    border-radius:var(--radius-lg); padding:20px; box-shadow:var(--shadow-sm);
   }
   .panel + .panel{ margin-top:16px; }
   .panel-title{
@@ -137,9 +139,7 @@
   .digit-label{ font-family:var(--font-mono); font-size:11px; color:var(--text-muted); margin-top:8px; font-weight:600; }
   .digit-pct{ font-family:var(--font-mono); font-size:10px; color:var(--text-muted); margin-bottom:6px; font-weight:600; }
 
-  .tick-tape{
-    display:flex; gap:6px; overflow-x:auto; padding:12px 0; scrollbar-width:none;
-  }
+  .tick-tape{ display:flex; gap:6px; overflow-x:auto; padding:12px 0; scrollbar-width:none; }
   .tick-tape::-webkit-scrollbar{ display:none; }
   .tick-chip{
     flex:0 0 auto; width:30px; height:30px; border-radius:6px;
@@ -157,24 +157,17 @@
     font-weight:500;
   }
   .signal-banner.armed{ border-color:var(--amber); background:var(--amber-light); color:#92400E; }
-  .signal-banner.fired-up{ border-color:var(--up); background:var(--up-light); color:#065F46; }
-  .signal-banner.fired-down{ border-color:var(--down); background:var(--down-light); color:#991B1B; }
 
   .metric-row {
     display: flex; justify-content: space-between; align-items: center;
-    padding:10px 0; border-bottom:1px solid var(--border);
-    font-size:13px;
+    padding:10px 0; border-bottom:1px solid var(--border); font-size:13px;
   }
   .metric-row:last-child { border-bottom:none; }
   .metric-label { color:var(--text-secondary); font-weight:500; }
   .metric-value { color:var(--accent); font-weight:700; font-family:var(--font-mono); }
   .metric-value.amber { color:var(--amber); }
-  .metric-value.up { color:var(--up); }
 
-  .badge {
-    display:inline-block; padding:3px 10px; border-radius:20px;
-    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
-  }
+  .badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; }
   .badge.high { background:var(--up-light); color:var(--up); }
   .badge.medium { background:var(--amber-light); color:var(--amber); }
   .badge.low { background:var(--down-light); color:var(--down); }
@@ -208,12 +201,13 @@
       </div>
     </div>
     <div class="status-cluster">
+      <button class="btn-login" id="btnLogin">Login with Deriv</button>
       <div class="conn-pill"><span class="dot" id="connDot"></span><span id="connText">Disconnected</span></div>
     </div>
   </div>
 
   <div class="warning-box">
-    <b>Analysis tool only:</b> This reads live public price data and shows a statistical digit-frequency signal — it does not place trades and does not need your Deriv login or any account access. When a signal arms, you set up and place the trade yourself on your own Deriv account. It does not guarantee profit — synthetic index outcomes are randomised and past digit patterns don't predict future ones.
+    <b>Analysis tool only:</b> This reads live public price data and shows a statistical digit-frequency signal — it does not place trades. Logging in with Deriv only verifies your identity so the tool can subscribe to 1-second index symbols that the public feed blocks. It does not place any trade on your behalf. Signals are informational only. Synthetic index outcomes are randomised and past digit patterns don't predict future ones.
   </div>
 
   <div class="error-box" id="errorBox"></div>
@@ -320,8 +314,8 @@
 <script>
 (function(){
   // ---------------- CONFIG ----------------
-  // Your registered Deriv app ID (OAuth, Trade scope)
   const APP_ID = '34nCrHkce65Z7N2Yy987vr';
+  const OAUTH_URL = 'https://oauth.deriv.com/oauth2/authorize?app_id=' + APP_ID;
 
   // ---------------- State ----------------
   const state = {
@@ -335,11 +329,14 @@
     tickHistory: [],
     manualThresholdUntil: 0,
     reconnectTimer: null,
+    token: null,
+    loggedIn: false,
   };
 
   const els = {
     connDot: document.getElementById('connDot'),
     connText: document.getElementById('connText'),
+    btnLogin: document.getElementById('btnLogin'),
     symbolSelect: document.getElementById('symbolSelect'),
     strategyTabs: document.getElementById('strategyTabs'),
     strategyExtra: document.getElementById('strategyExtra'),
@@ -359,6 +356,37 @@
     digitStability: document.getElementById('digitStability'),
     errorBox: document.getElementById('errorBox'),
   };
+
+  // ---------------- OAuth token pickup ----------------
+  // Deriv returns the token in the URL fragment: #token1=xxx&acct1=CRxxxx
+  function pickUpTokenFromHash(){
+    const hash = window.location.hash.substring(1);
+    if(!hash) return null;
+    const params = new URLSearchParams(hash);
+    const token = params.get('token1');
+    if(token){
+      // Clean the URL so the token isn't visible or re-used on refresh
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+      return token;
+    }
+    return null;
+  }
+
+  const incomingToken = pickUpTokenFromHash();
+  if(incomingToken){
+    state.token = incomingToken;
+    state.loggedIn = true;
+    els.btnLogin.textContent = 'Logged in ✓';
+    els.btnLogin.classList.add('logged');
+  }
+
+  // ---------------- Login button ----------------
+  els.btnLogin.addEventListener('click', ()=>{
+    if(state.loggedIn) return;
+    // Send user to Deriv OAuth. They'll be redirected back to this page
+    // with #token1=... in the URL after they approve access.
+    window.location.href = OAUTH_URL;
+  });
 
   // ---------------- Strategy extra fields ----------------
   function renderStrategyExtra(){
@@ -403,24 +431,42 @@
     showError('');
     setConn('connecting', 'Connecting…');
 
-    // Build the WS URL with your app_id
     const url = `wss://ws.derivws.com/websockets/v3?app_id=${APP_ID}&l=EN`;
     state.ws = new WebSocket(url);
 
     state.ws.onopen = ()=>{
       setConn('live', 'Connected');
-      subscribeTicks();
+      // If we have a token, authorize first so 1-second symbols are unlocked
+      if(state.token){
+        send({ authorize: state.token });
+      } else {
+        subscribeTicks();
+      }
     };
 
     state.ws.onmessage = (msg)=>{
       let data;
       try { data = JSON.parse(msg.data); } catch(e){ return; }
 
-      // Handle errors from the API
       if(data.error){
         console.error('Deriv API error:', data.error);
         showError(`Deriv API error: ${data.error.message || data.error.code}`);
         setConn('err', 'API error');
+        // If authorize failed, fall back to public feed
+        if(data.msg_type === 'authorize' || (data.error.code && data.error.code.indexOf('Authorization') === 0)){
+          state.token = null;
+          state.loggedIn = false;
+          els.btnLogin.textContent = 'Login with Deriv';
+          els.btnLogin.classList.remove('logged');
+          subscribeTicks();
+        }
+        return;
+      }
+
+      // After authorize succeeds, subscribe to ticks
+      if(data.msg_type === 'authorize' && data.authorize){
+        setConn('live', 'Connected (authorized)');
+        subscribeTicks();
         return;
       }
 
@@ -437,7 +483,6 @@
     state.ws.onclose = ()=>{
       if(state.running){
         setConn('warn', 'Reconnecting…');
-        // Auto-reconnect after 2 seconds
         clearTimeout(state.reconnectTimer);
         state.reconnectTimer = setTimeout(()=>{
           if(state.running) connect();
@@ -473,10 +518,8 @@
   }
 
   function subscribeTicks(){
-    // Clear old subscription first (safe to send even if none active)
     send({ forget_all: 'ticks' });
 
-    // Reset state for the new symbol
     state.ticks = [];
     state.tickHistory = [];
     state.lastSignal = null;
@@ -486,7 +529,6 @@
     updateAccuracyMetrics();
     setSignal('idle', 'Waiting for enough tick data to evaluate a signal…', '');
 
-    // Subscribe to the selected symbol
     send({ ticks: els.symbolSelect.value, subscribe: 1 });
   }
 
@@ -600,7 +642,6 @@
     els.recThreshold.textContent = recThresh + '%';
     els.digitStability.textContent = (stability * 100).toFixed(0) + '% change';
 
-    // Auto-adjust the slider if user hasn't touched it recently
     if(Date.now() > state.manualThresholdUntil){
       if(Number(els.confSlider.value) !== recThresh){
         els.confSlider.value = recThresh;
@@ -623,7 +664,6 @@
     const counts = Array(10).fill(0);
     state.ticks.forEach(d=>counts[d]++);
 
-    // Compute chi-square for adaptive threshold
     const expected = n / 10;
     let chiSq = 0;
     for(let d=0; d<10; d++){
@@ -719,7 +759,6 @@
     els.btnStop.style.display = 'none';
     clearTimeout(state.reconnectTimer);
     if(state.ws){
-      // Remove handlers before closing to avoid reconnect loop
       state.ws.onopen = null;
       state.ws.onmessage = null;
       state.ws.onerror = null;
@@ -729,7 +768,6 @@
     }
     setConn('idle', 'Disconnected');
     showError('');
-    // Reset live panels
     state.ticks = [];
     state.tickHistory = [];
     state.lastSignal = null;
@@ -741,7 +779,6 @@
   els.btnStart.addEventListener('click', startAnalysis);
   els.btnStop.addEventListener('click', stopAnalysis);
 
-  // ---------------- Initial render ----------------
   renderTickUI();
   updateAccuracyMetrics();
 })();
