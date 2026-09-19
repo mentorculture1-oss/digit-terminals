@@ -5,233 +5,192 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Digit Terminal · Enhanced Analysis</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
     :root{
-      --bg-base:#05080B;
-      --bg-panel:#080D11;
-      --bg-raised:#0C1318;
-      --bg-hover:#101A21;
-      --border:#12464F;
-      --border-soft:#0D2B31;
-      --text-primary:#CFEFF2;
-      --text-secondary:#5E8A91;
-      --text-dim:#3A5A60;
-      --up:#00E5C7;
-      --up-dim:#062E29;
-      --down:#FF4D6A;
-      --down-dim:#3A0F18;
-      --amber:#FFC94D;
-      --amber-dim:#3A2E0D;
-      --blue:#00D9FF;
-      --blue-dim:#052A30;
-      --radius-sm:2px;
-      --radius-md:2px;
-      --font-ui:'IBM Plex Mono', monospace;
-      --font-mono:'IBM Plex Mono', monospace;
-      --glow:0 0 8px rgba(0,217,255,0.25);
+      --bg-body:#F4F6F8;
+      --bg-card:#FFFFFF;
+      --bg-subtle:#F0F2F5;
+      --bg-input:#FFFFFF;
+      --border:#E2E8F0;
+      --border-focus:#3B82F6;
+      --text-primary:#0F172A;
+      --text-secondary:#64748B;
+      --text-muted:#94A3B8;
+      --accent:#3B82F6;
+      --accent-light:#EFF6FF;
+      --up:#10B981;
+      --up-light:#ECFDF5;
+      --down:#EF4444;
+      --down-light:#FEF2F2;
+      --amber:#F59E0B;
+      --amber-light:#FFFBEB;
+      --radius-sm:6px;
+      --radius-md:10px;
+      --radius-lg:14px;
+      --shadow-sm:0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md:0 4px 12px rgba(0,0,0,0.06);
+      --shadow-lg:0 8px 24px rgba(0,0,0,0.08);
+      --font-ui:'Inter', -apple-system, sans-serif;
+      --font-mono:'JetBrains Mono', monospace;
     }
 
-    *{ box-sizing:border-box; }
-    html,body{ margin:0; padding:0; }
+    *{ box-sizing:border-box; margin:0; padding:0; }
     body{
-      background:
-        radial-gradient(ellipse at top, rgba(0,217,255,0.04), transparent 60%),
-        var(--bg-base);
+      background:var(--bg-body);
       color:var(--text-primary);
       font-family:var(--font-ui);
       -webkit-font-smoothing:antialiased;
       min-height:100vh;
-      letter-spacing:0.02em;
+      line-height:1.5;
     }
 
-    .app{ max-width:1180px; margin:0 auto; padding:20px 20px 60px; }
+    .app{ max-width:1200px; margin:0 auto; padding:24px 20px 60px; }
 
     /* ---------- Top bar ---------- */
     .topbar{
       display:flex; align-items:center; justify-content:space-between;
-      padding:14px 18px; background:var(--bg-panel);
-      border:1px solid var(--border); border-radius:var(--radius-md);
-      margin-bottom:16px; flex-wrap:wrap; gap:12px;
+      padding:16px 24px; background:var(--bg-card);
+      border:1px solid var(--border); border-radius:var(--radius-lg);
+      margin-bottom:20px; flex-wrap:wrap; gap:12px;
+      box-shadow:var(--shadow-sm);
     }
-    .brand{ display:flex; align-items:center; gap:10px; }
+    .brand{ display:flex; align-items:center; gap:12px; }
     .brand-mark{
-      width:32px; height:32px; border-radius:var(--radius-sm);
-      background:var(--bg-raised); border:1px solid var(--blue);
-      box-shadow:var(--glow);
+      width:38px; height:38px; border-radius:var(--radius-sm);
+      background:linear-gradient(135deg, var(--accent), #2563EB);
       display:flex; align-items:center; justify-content:center;
-      font-family:var(--font-mono); font-weight:700; font-size:13px; color:var(--blue);
+      font-family:var(--font-mono); font-weight:700; font-size:14px; color:#fff;
     }
-    .brand-name{ font-weight:700; font-size:16px; letter-spacing:0.08em; color:var(--blue); text-transform:uppercase; text-shadow:var(--glow); }
-    .brand-sub{ color:var(--text-dim); font-size:10.5px; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:0.08em; }
+    .brand-name{ font-weight:700; font-size:16px; color:var(--text-primary); }
+    .brand-sub{ color:var(--text-muted); font-size:12px; font-weight:500; }
 
-    .status-cluster{ display:flex; align-items:center; gap:22px; flex-wrap:wrap; }
-    .stat{ text-align:right; }
-    .stat-label{ font-size:10px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.1em; }
-    .stat-value{ font-family:var(--font-mono); font-size:16px; font-weight:700; margin-top:2px; letter-spacing:0.03em; }
-    .stat-value.pos{ color:var(--up); text-shadow:0 0 6px rgba(0,229,199,0.35); }
-    .stat-value.neg{ color:var(--down); text-shadow:0 0 6px rgba(255,77,106,0.35); }
-
+    .status-cluster{ display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
     .conn-pill{
-      display:flex; align-items:center; gap:7px; padding:6px 12px;
-      border-radius:var(--radius-sm); background:var(--bg-raised); border:1px solid var(--border);
-      font-size:11px; font-family:var(--font-mono); color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.08em;
+      display:flex; align-items:center; gap:8px; padding:8px 14px;
+      border-radius:20px; background:var(--bg-subtle); border:1px solid var(--border);
+      font-size:12px; font-weight:600; color:var(--text-secondary);
     }
-    .dot{ width:7px; height:7px; border-radius:50%; background:var(--text-dim); }
-    .dot.live{ background:var(--up); box-shadow:0 0 8px 2px rgba(0,229,199,0.5); }
-    .dot.err{ background:var(--down); box-shadow:0 0 8px 2px rgba(255,77,106,0.5); }
+    .dot{ width:8px; height:8px; border-radius:50%; background:var(--text-muted); }
+    .dot.live{ background:var(--up); box-shadow:0 0 0 3px var(--up-light); }
+    .dot.err{ background:var(--down); box-shadow:0 0 0 3px var(--down-light); }
 
     /* ---------- Layout ---------- */
-    .grid{ display:grid; grid-template-columns:340px 1fr; gap:16px; }
-    @media (max-width:860px){ .grid{ grid-template-columns:1fr; } }
+    .grid{ display:grid; grid-template-columns:360px 1fr; gap:20px; }
+    @media (max-width:900px){ .grid{ grid-template-columns:1fr; } }
 
     .panel{
-      background:var(--bg-panel); border:1px solid var(--border);
-      border-radius:var(--radius-md); padding:18px; position:relative;
-    }
-    .panel::before{
-      content:''; position:absolute; top:-1px; left:-1px; width:10px; height:10px;
-      border-top:2px solid var(--blue); border-left:2px solid var(--blue); opacity:0.6;
-    }
-    .panel::after{
-      content:''; position:absolute; bottom:-1px; right:-1px; width:10px; height:10px;
-      border-bottom:2px solid var(--blue); border-right:2px solid var(--blue); opacity:0.6;
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:var(--radius-lg); padding:20px;
+      box-shadow:var(--shadow-sm);
     }
     .panel + .panel{ margin-top:16px; }
     .panel-title{
-      font-size:11px; text-transform:uppercase; letter-spacing:0.12em;
-      color:var(--blue); margin:0 0 14px; display:flex; justify-content:space-between; align-items:center;
+      font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
+      color:var(--text-muted); margin:0 0 16px;
+      display:flex; justify-content:space-between; align-items:center;
     }
-    .panel-title::before{ content:'● '; }
 
-    label{ display:block; font-size:11px; color:var(--text-secondary); margin:0 0 6px; text-transform:uppercase; letter-spacing:0.06em; }
-    .field{ margin-bottom:14px; }
+    label{ display:block; font-size:12px; font-weight:600; color:var(--text-secondary); margin:0 0 6px; }
+    .field{ margin-bottom:16px; }
     .field:last-child{ margin-bottom:0; }
 
     input[type=text], input[type=password], input[type=number], select{
-      width:100%; background:var(--bg-raised); border:1px solid var(--border);
-      color:var(--text-primary); padding:9px 10px; border-radius:var(--radius-sm);
-      font-family:var(--font-mono); font-size:13.5px; outline:none;
+      width:100%; background:var(--bg-input); border:1.5px solid var(--border);
+      color:var(--text-primary); padding:10px 12px; border-radius:var(--radius-sm);
+      font-family:var(--font-mono); font-size:13px; outline:none;
       transition:border-color .15s, box-shadow .15s;
     }
-    input:focus, select:focus{ border-color:var(--blue); box-shadow:var(--glow); }
-    select{ appearance:none; cursor:pointer; }
+    input:focus, select:focus{ border-color:var(--border-focus); box-shadow:0 0 0 3px var(--accent-light); }
+    select{ appearance:none; cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:36px; }
 
-    .row2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-
-    .segmented{ display:flex; background:var(--bg-raised); border:1px solid var(--border); border-radius:var(--radius-sm); padding:3px; gap:3px; }
-    .segmented button{
-      flex:1; padding:8px 6px; background:transparent; border:none; border-radius:1px;
-      color:var(--text-secondary); font-family:var(--font-ui); font-size:12px; font-weight:600;
-      cursor:pointer; transition:all .15s; text-transform:uppercase;
-    }
-    .segmented button.active{ background:var(--blue-dim); color:var(--blue); box-shadow:inset 0 0 0 1px var(--blue); }
-    .segmented button.active.up{ color:var(--up); }
-    .segmented button.active.down{ color:var(--down); }
-
-    .strategy-tabs{ display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
+    .strategy-tabs{ display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
     .strategy-tab{
-      padding:8px 14px; border-radius:var(--radius-sm); border:1px solid var(--border);
-      background:var(--bg-raised); color:var(--text-secondary); font-size:11.5px;
-      font-family:var(--font-mono); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;
-      cursor:pointer; transition:all .15s;
+      padding:8px 16px; border-radius:20px; border:1.5px solid var(--border);
+      background:var(--bg-card); color:var(--text-secondary); font-size:12px;
+      font-weight:600; cursor:pointer; transition:all .15s;
     }
-    .strategy-tab.active{ border-color:var(--blue); color:var(--blue); background:var(--blue-dim); box-shadow:var(--glow); }
+    .strategy-tab:hover{ border-color:var(--accent); color:var(--accent); }
+    .strategy-tab.active{ border-color:var(--accent); color:#fff; background:var(--accent); }
 
-    .slider-row{ display:flex; align-items:center; gap:10px; }
-    input[type=range]{ flex:1; accent-color:var(--amber); }
-    .slider-val{ font-family:var(--font-mono); font-size:13px; color:var(--amber); min-width:40px; text-align:right; font-weight:700; }
+    .slider-row{ display:flex; align-items:center; gap:12px; }
+    input[type=range]{ flex:1; accent-color:var(--accent); height:6px; }
+    .slider-val{ font-family:var(--font-mono); font-size:14px; color:var(--accent); min-width:48px; text-align:right; font-weight:700; }
 
-    .hint{ font-size:11px; color:var(--text-dim); margin-top:6px; line-height:1.5; }
+    .hint{ font-size:12px; color:var(--text-muted); margin-top:6px; line-height:1.5; }
 
     .btn{
-      width:100%; padding:12px; border-radius:var(--radius-sm); border:1px solid transparent;
+      width:100%; padding:12px; border-radius:var(--radius-sm); border:none;
       font-family:var(--font-ui); font-weight:700; font-size:13px; cursor:pointer;
-      transition:filter .15s, transform .05s; text-transform:uppercase; letter-spacing:0.06em;
+      transition:all .15s; letter-spacing:0.02em;
     }
-    .btn:active{ transform:scale(0.99); }
-    .btn-start{ background:var(--up-dim); color:var(--up); border-color:var(--up); box-shadow:0 0 10px rgba(0,229,199,0.15); }
-    .btn-start:hover{ box-shadow:0 0 14px rgba(0,229,199,0.3); }
-    .btn-stop{ background:var(--down-dim); color:var(--down); border-color:var(--down); box-shadow:0 0 10px rgba(255,77,106,0.15); }
-    .btn-stop:hover{ box-shadow:0 0 14px rgba(255,77,106,0.3); }
-    .btn-ghost{ background:var(--blue-dim); border:1px solid var(--blue); color:var(--blue); }
-    .btn-ghost:hover{ box-shadow:var(--glow); }
-    .btn:disabled{ opacity:0.35; cursor:not-allowed; box-shadow:none; }
+    .btn:active{ transform:scale(0.98); }
+    .btn-start{ background:var(--up); color:#fff; box-shadow:0 2px 8px rgba(16,185,129,0.3); }
+    .btn-start:hover{ box-shadow:0 4px 14px rgba(16,185,129,0.4); }
+    .btn-stop{ background:var(--down); color:#fff; box-shadow:0 2px 8px rgba(239,68,68,0.3); }
+    .btn-stop:hover{ box-shadow:0 4px 14px rgba(239,68,68,0.4); }
+    .btn:disabled{ opacity:0.4; cursor:not-allowed; box-shadow:none; }
 
     /* ---------- Digit histogram ---------- */
-    .digit-grid{ display:grid; grid-template-columns:repeat(10,1fr); gap:6px; align-items:end; height:130px; margin:6px 0 4px; }
+    .digit-grid{ display:grid; grid-template-columns:repeat(10,1fr); gap:8px; align-items:end; height:140px; margin:8px 0 4px; }
     .digit-col{ display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
-    .digit-bar{ width:100%; background:var(--bg-hover); border-radius:1px 1px 0 0; transition:height .3s ease; min-height:3px; border:1px solid var(--border); border-bottom:none; }
-    .digit-bar.even{ background:var(--up-dim); border-color:var(--up); box-shadow:0 0 6px rgba(0,229,199,0.2); }
-    .digit-bar.odd{ background:var(--down-dim); border-color:var(--down); box-shadow:0 0 6px rgba(255,77,106,0.2); }
-    .digit-label{ font-family:var(--font-mono); font-size:11px; color:var(--text-dim); margin-top:6px; }
-    .digit-pct{ font-family:var(--font-mono); font-size:9.5px; color:var(--text-dim); margin-bottom:4px; }
+    .digit-bar{ width:100%; border-radius:4px 4px 0 0; transition:height .3s ease; min-height:4px; }
+    .digit-bar.even{ background:linear-gradient(to top, #10B981, #34D399); }
+    .digit-bar.odd{ background:linear-gradient(to top, #EF4444, #F87171); }
+    .digit-label{ font-family:var(--font-mono); font-size:11px; color:var(--text-muted); margin-top:8px; font-weight:600; }
+    .digit-pct{ font-family:var(--font-mono); font-size:10px; color:var(--text-muted); margin-bottom:6px; font-weight:600; }
 
     .tick-tape{
-      display:flex; gap:5px; overflow-x:auto; padding:10px 0; scrollbar-width:none;
+      display:flex; gap:6px; overflow-x:auto; padding:12px 0; scrollbar-width:none;
     }
     .tick-tape::-webkit-scrollbar{ display:none; }
     .tick-chip{
-      flex:0 0 auto; width:26px; height:26px; border-radius:var(--radius-sm);
+      flex:0 0 auto; width:30px; height:30px; border-radius:6px;
       display:flex; align-items:center; justify-content:center;
       font-family:var(--font-mono); font-size:12px; font-weight:700;
-      background:var(--bg-raised); color:var(--text-secondary); border:1px solid var(--border);
+      background:var(--bg-subtle); color:var(--text-secondary); border:1.5px solid var(--border);
     }
-    .tick-chip.even{ color:var(--up); border-color:var(--up); }
-    .tick-chip.odd{ color:var(--down); border-color:var(--down); }
+    .tick-chip.even{ color:var(--up); border-color:var(--up); background:var(--up-light); }
+    .tick-chip.odd{ color:var(--down); border-color:var(--down); background:var(--down-light); }
 
     .signal-banner{
-      display:flex; align-items:center; gap:10px; padding:11px 14px;
-      border-radius:var(--radius-sm); margin-bottom:14px; font-size:13px;
-      background:var(--bg-raised); border:1px solid var(--border); color:var(--text-secondary);
-      font-family:var(--font-mono);
+      display:flex; align-items:center; gap:10px; padding:14px 18px;
+      border-radius:var(--radius-sm); margin-bottom:14px; font-size:14px;
+      background:var(--bg-subtle); border:1.5px solid var(--border); color:var(--text-secondary);
+      font-weight:500;
     }
-    .signal-banner.armed{ border-color:var(--amber); background:var(--amber-dim); color:#FFE1A0; box-shadow:0 0 10px rgba(255,201,77,0.15); }
-    .signal-banner.fired-up{ border-color:var(--up); background:var(--up-dim); color:#B7F3E1; }
-    .signal-banner.fired-down{ border-color:var(--down); background:var(--down-dim); color:#FFC6CC; }
+    .signal-banner.armed{ border-color:var(--amber); background:var(--amber-light); color:#92400E; }
+    .signal-banner.fired-up{ border-color:var(--up); background:var(--up-light); color:#065F46; }
+    .signal-banner.fired-down{ border-color:var(--down); background:var(--down-light); color:#991B1B; }
 
-    /* ---------- Log ---------- */
-    .log-table{ width:100%; border-collapse:collapse; font-family:var(--font-mono); font-size:12px; }
-    .log-table th{
-      text-align:left; color:var(--text-dim); font-weight:600; font-size:10px;
-      text-transform:uppercase; letter-spacing:0.08em; padding:0 8px 8px; border-bottom:1px solid var(--border);
-    }
-    .log-table td{ padding:8px; border-bottom:1px solid var(--border-soft); color:var(--text-secondary); }
-    .log-table tr:last-child td{ border-bottom:none; }
-    .log-empty{ color:var(--text-dim); text-align:center; padding:24px 0; font-family:var(--font-mono); font-size:12px; text-transform:uppercase; letter-spacing:0.06em; }
-    .pill{ padding:2px 8px; border-radius:var(--radius-sm); font-size:11px; font-weight:700; border:1px solid transparent; }
-    .pill.win{ background:var(--up-dim); color:var(--up); border-color:var(--up); }
-    .pill.loss{ background:var(--down-dim); color:var(--down); border-color:var(--down); }
-
-    .warning-box{
-      background:var(--amber-dim); border:1px solid var(--amber); color:#FFE1A0;
-      border-radius:var(--radius-sm); padding:12px 14px; font-size:12px; line-height:1.55;
-      margin-bottom:16px; font-family:var(--font-mono);
-    }
-    .warning-box b{ color:var(--amber); }
-
-    .footer-note{ color:var(--text-dim); font-size:10.5px; text-align:center; margin-top:26px; line-height:1.6; text-transform:uppercase; letter-spacing:0.06em; font-family:var(--font-mono); }
-
-    /* ---------- Additional accuracy panel ---------- */
+    /* ---------- Metrics ---------- */
     .metric-row {
-      display: flex; justify-content: space-between; padding: 6px 0;
-      border-bottom: 1px solid var(--border-soft);
-      font-size: 12px; font-family: var(--font-mono);
+      display: flex; justify-content: space-between; align-items: center;
+      padding:10px 0; border-bottom:1px solid var(--border);
+      font-size:13px;
     }
-    .metric-row:last-child { border-bottom: none; }
-    .metric-label { color: var(--text-secondary); }
-    .metric-value { color: var(--blue); font-weight: 600; }
-    .metric-value.amber { color: var(--amber); }
-    .metric-value.up { color: var(--up); }
-    .metric-value.down { color: var(--down); }
+    .metric-row:last-child { border-bottom:none; }
+    .metric-label { color:var(--text-secondary); font-weight:500; }
+    .metric-value { color:var(--accent); font-weight:700; font-family:var(--font-mono); }
+    .metric-value.amber { color:var(--amber); }
+    .metric-value.up { color:var(--up); }
 
     .badge {
-      display: inline-block; padding: 2px 6px; border-radius: 2px;
-      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      display:inline-block; padding:3px 10px; border-radius:20px;
+      font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
     }
-    .badge.high { background: var(--up-dim); color: var(--up); border:1px solid var(--up); }
-    .badge.medium { background: var(--amber-dim); color: var(--amber); border:1px solid var(--amber); }
-    .badge.low { background: var(--down-dim); color: var(--down); border:1px solid var(--down); }
+    .badge.high { background:var(--up-light); color:var(--up); }
+    .badge.medium { background:var(--amber-light); color:var(--amber); }
+    .badge.low { background:var(--down-light); color:var(--down); }
+
+    .warning-box{
+      background:var(--amber-light); border:1.5px solid var(--amber); color:#92400E;
+      border-radius:var(--radius-sm); padding:14px 18px; font-size:13px; line-height:1.6;
+      margin-bottom:20px; font-weight:500;
+    }
+    .warning-box b{ color:var(--amber); font-weight:700; }
+
+    .footer-note{ color:var(--text-muted); font-size:12px; text-align:center; margin-top:32px; line-height:1.7; font-weight:500; }
   </style>
 </head>
 <body>
@@ -241,8 +200,8 @@
     <div class="brand">
       <div class="brand-mark">DZ</div>
       <div>
-        <div class="brand-name">Digit Terminal · Enhanced</div>
-        <div class="brand-sub">deriv synthetic index digit analysis</div>
+        <div class="brand-name">Digit Terminal</div>
+        <div class="brand-sub">Deriv synthetic index digit analysis</div>
       </div>
     </div>
     <div class="status-cluster">
@@ -251,7 +210,7 @@
   </div>
 
   <div class="warning-box">
-    <b>Analysis tool only:</b> this reads live public price data and shows a statistical digit-frequency signal — it does not place trades and does not need your Deriv login or any account access. When a signal arms, you set up and place the trade yourself on your own Deriv account. It does not guarantee profit — synthetic index outcomes are randomised and past digit patterns don't predict future ones.
+    <b>Analysis tool only:</b> This reads live public price data and shows a statistical digit-frequency signal — it does not place trades and does not need your Deriv login or any account access. When a signal arms, you set up and place the trade yourself on your own Deriv account. It does not guarantee profit — synthetic index outcomes are randomised and past digit patterns don't predict future ones.
   </div>
 
   <div class="grid">
@@ -287,7 +246,7 @@
         <div id="strategyExtra"></div>
 
         <div class="field">
-          <label>Confidence threshold — how far digit frequency must drift from expected before a signal arms</label>
+          <label>Confidence threshold</label>
           <div class="slider-row">
             <input type="range" id="confSlider" min="52" max="85" value="65">
             <div class="slider-val" id="confVal">65%</div>
@@ -312,7 +271,7 @@
       <div class="panel">
         <div class="panel-title">
           <span>Live digit distribution</span>
-          <span id="tickCount" style="font-family:var(--font-mono); font-weight:500; color:var(--text-dim);">0 ticks</span>
+          <span id="tickCount" style="font-family:var(--font-mono); font-weight:600; color:var(--text-muted);">0 ticks</span>
         </div>
         <div class="digit-grid" id="digitGrid"></div>
         <div class="tick-tape" id="tickTape"></div>
@@ -324,7 +283,6 @@
         <div class="hint" id="signalDetail"></div>
       </div>
 
-      <!-- Enhanced accuracy metrics panel -->
       <div class="panel">
         <div class="panel-title">Statistical accuracy metrics</div>
         <div id="accuracyMetrics">
@@ -361,12 +319,12 @@
   const state = {
     ws:null,
     running:false,
-    ticks:[], // last digits
+    ticks:[],
     strategy:'evenodd',
     lastSignal:null,
     signalHoldUntil:0,
-    signalHoldMs:7000, // extended hold for better reaction time
-    tickHistory: [],   // full tick array for rolling metrics
+    signalHoldMs:7000,
+    tickHistory: [],
     lastDigitCounts: Array(10).fill(0),
     biasConfidence: 0,
   };
@@ -387,7 +345,6 @@
     tickCount: document.getElementById('tickCount'),
     signalBanner: document.getElementById('signalBanner'),
     signalDetail: document.getElementById('signalDetail'),
-    // accuracy metrics
     chiValue: document.getElementById('chiValue'),
     biasConfidence: document.getElementById('biasConfidence'),
     recThreshold: document.getElementById('recThreshold'),
@@ -490,7 +447,7 @@
     }
   });
 
-  // ---------------- Tick handling with enhanced statistics ----------------
+  // ---------------- Tick handling ----------------
   function lastDigitFromQuote(quoteStr, pipSize){
     const decimals = pipSize ? Math.round(-Math.log10(pipSize)) : 2;
     const fixed = Number(quoteStr).toFixed(decimals);
@@ -503,11 +460,9 @@
     const maxLen = Math.max(30, Number(els.lookback.value) || 120);
     if(state.ticks.length > maxLen) state.ticks.shift();
 
-    // Keep full tick history for rolling stats (up to 1000)
     state.tickHistory.push(digit);
     if(state.tickHistory.length > 1000) state.tickHistory.shift();
 
-    // Update digit counts for metrics
     state.lastDigitCounts[digit]++;
 
     renderTickUI();
@@ -558,28 +513,24 @@
     state.ticks.forEach(d=>counts[d]++);
     const expected = n / 10;
 
-    // Chi-square statistic
     let chiSq = 0;
     for(let d=0; d<10; d++){
       const diff = counts[d] - expected;
       chiSq += (diff * diff) / expected;
     }
 
-    // Map chi-square to a qualitative confidence (for 9 df, critical values: 16.92 @ 0.05, 21.67 @ 0.01)
     let biasLevel = 'low';
     let biasText = 'Low';
     if(chiSq > 21.67) { biasLevel = 'high'; biasText = 'High (p<0.01)'; }
     else if(chiSq > 16.92) { biasLevel = 'medium'; biasText = 'Medium (p<0.05)'; }
     else if(chiSq > 10.0) { biasLevel = 'medium'; biasText = 'Moderate'; }
 
-    // Recommended threshold based on chi-square: stronger bias -> can use lower threshold
     let recThresh = 65;
     if(chiSq > 25) recThresh = 58;
     else if(chiSq > 20) recThresh = 60;
     else if(chiSq > 15) recThresh = 62;
     else if(chiSq > 10) recThresh = 64;
 
-    // Digit stability: how much the distribution changed over last 10 ticks
     let stability = 0;
     if(state.tickHistory.length >= 20){
       const recent = state.tickHistory.slice(-10);
@@ -592,16 +543,14 @@
       for(let d=0; d<10; d++){
         diffSum += Math.abs((recentCounts[d]/10) - (prevCounts[d]/10));
       }
-      stability = diffSum / 2; // 0 = perfectly stable, 1 = completely different
+      stability = diffSum / 2;
     }
 
-    // Update UI
     els.chiValue.textContent = chiSq.toFixed(2);
     els.biasConfidence.innerHTML = `<span class="badge ${biasLevel}">${biasText}</span>`;
     els.recThreshold.textContent = recThresh + '%';
     els.digitStability.textContent = (stability * 100).toFixed(0) + '% change';
 
-    // Auto-adjust slider if user hasn't manually overridden in last 5 seconds
     if(!els.confSlider.dataset.manual || (Date.now() - Number(els.confSlider.dataset.manual)) > 5000){
       if(Number(els.confSlider.value) !== recThresh){
         els.confSlider.value = recThresh;
@@ -610,34 +559,30 @@
     }
   }
 
-  // Allow manual override of threshold
   els.confSlider.addEventListener('input', ()=>{
     els.confSlider.dataset.manual = Date.now();
   });
 
-  // ---------------- Signal engine with improved logic ----------------
+  // ---------------- Signal engine ----------------
   function evaluateSignal(){
-    const minTicks = 30; // increased for better statistical significance
+    const minTicks = 30;
     if(state.ticks.length < minTicks){
       setSignal('idle', `Waiting for at least ${minTicks} ticks (have ${state.ticks.length})…`, '');
       state.lastSignal = null;
       return;
     }
 
-    // Use adaptive threshold: if bias is strong, we can be more lenient
     let threshold = Number(els.confSlider.value) / 100;
     const n = state.ticks.length;
     const counts = Array(10).fill(0);
     state.ticks.forEach(d=>counts[d]++);
 
-    // Calculate chi-square for adaptive adjustment
     const expected = n / 10;
     let chiSq = 0;
     for(let d=0; d<10; d++){
       const diff = counts[d] - expected;
       chiSq += (diff * diff) / expected;
     }
-    // If chi-square is high (strong bias), slightly lower threshold to catch signal earlier
     if(chiSq > 20) threshold = Math.max(0.52, threshold - 0.03);
     else if(chiSq > 15) threshold = Math.max(0.54, threshold - 0.015);
 
@@ -674,12 +619,11 @@
       }
 
     } else if(state.strategy === 'matchdiffer'){
-      // Hold signal steady for a minimum window
       const now = Date.now();
       if(state.lastSignal && state.lastSignal.barrier !== undefined && now < state.signalHoldUntil){
         const remainingMs = state.signalHoldUntil - now;
         setSignal('armed', `Signal: trade DIFFERS ${state.lastSignal.barrier}`,
-          state.lastSignal.reason + ` · Holding steady for ${(remainingMs/1000).toFixed(1)}s more — plenty of time to set it up and run.`);
+          state.lastSignal.reason + ` · Holding steady for ${(remainingMs/1000).toFixed(1)}s more.`);
         return;
       }
 
@@ -687,9 +631,7 @@
       const minPct = counts[minD]/n;
       const expectedPct = 1/10;
       
-      // Improved condition: use chi-square and deviation from expected
       const deviation = expectedPct - minPct;
-      // More selective: require at least 2.5% below expected (was more lenient before)
       if(deviation >= 0.025 || (chiSq > 12 && minPct < 0.08)){
         const isNewSignal = !state.lastSignal || state.lastSignal.barrier !== minD;
         state.lastSignal = { 
@@ -738,7 +680,6 @@
   els.btnStart.addEventListener('click', startAnalysis);
   els.btnStop.addEventListener('click', stopAnalysis);
 
-  // ---------------- Initial render ----------------
   renderTickUI();
   updateAccuracyMetrics();
 })();
