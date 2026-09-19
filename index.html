@@ -1,197 +1,200 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Digit Terminal · Enhanced Analysis</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digit Terminal · Analysis</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
-    :root{
-      --bg-body:#F4F6F8;
-      --bg-card:#FFFFFF;
-      --bg-subtle:#F0F2F5;
-      --bg-input:#FFFFFF;
-      --border:#E2E8F0;
-      --border-focus:#3B82F6;
-      --text-primary:#0F172A;
-      --text-secondary:#64748B;
-      --text-muted:#94A3B8;
-      --accent:#3B82F6;
-      --accent-light:#EFF6FF;
-      --up:#10B981;
-      --up-light:#ECFDF5;
-      --down:#EF4444;
-      --down-light:#FEF2F2;
-      --amber:#F59E0B;
-      --amber-light:#FFFBEB;
-      --radius-sm:6px;
-      --radius-md:10px;
-      --radius-lg:14px;
-      --shadow-sm:0 1px 2px rgba(0,0,0,0.04);
-      --shadow-md:0 4px 12px rgba(0,0,0,0.06);
-      --shadow-lg:0 8px 24px rgba(0,0,0,0.08);
-      --font-ui:'Inter', -apple-system, sans-serif;
-      --font-mono:'JetBrains Mono', monospace;
-    }
+  :root{
+    --bg-body:#F4F6F8;
+    --bg-card:#FFFFFF;
+    --bg-subtle:#F0F2F5;
+    --bg-input:#FFFFFF;
+    --border:#E2E8F0;
+    --border-focus:#3B82F6;
+    --text-primary:#0F172A;
+    --text-secondary:#64748B;
+    --text-muted:#94A3B8;
+    --accent:#3B82F6;
+    --accent-light:#EFF6FF;
+    --up:#10B981;
+    --up-light:#ECFDF5;
+    --down:#EF4444;
+    --down-light:#FEF2F2;
+    --amber:#F59E0B;
+    --amber-light:#FFFBEB;
+    --radius-sm:6px;
+    --radius-md:10px;
+    --radius-lg:14px;
+    --shadow-sm:0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md:0 4px 12px rgba(0,0,0,0.06);
+    --font-ui:'Inter', -apple-system, sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+  }
 
-    *{ box-sizing:border-box; margin:0; padding:0; }
-    body{
-      background:var(--bg-body);
-      color:var(--text-primary);
-      font-family:var(--font-ui);
-      -webkit-font-smoothing:antialiased;
-      min-height:100vh;
-      line-height:1.5;
-    }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{
+    background:var(--bg-body);
+    color:var(--text-primary);
+    font-family:var(--font-ui);
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    line-height:1.5;
+  }
 
-    .app{ max-width:1200px; margin:0 auto; padding:24px 20px 60px; }
+  .app{ max-width:1200px; margin:0 auto; padding:24px 20px 60px; }
 
-    /* ---------- Top bar ---------- */
-    .topbar{
-      display:flex; align-items:center; justify-content:space-between;
-      padding:16px 24px; background:var(--bg-card);
-      border:1px solid var(--border); border-radius:var(--radius-lg);
-      margin-bottom:20px; flex-wrap:wrap; gap:12px;
-      box-shadow:var(--shadow-sm);
-    }
-    .brand{ display:flex; align-items:center; gap:12px; }
-    .brand-mark{
-      width:38px; height:38px; border-radius:var(--radius-sm);
-      background:linear-gradient(135deg, var(--accent), #2563EB);
-      display:flex; align-items:center; justify-content:center;
-      font-family:var(--font-mono); font-weight:700; font-size:14px; color:#fff;
-    }
-    .brand-name{ font-weight:700; font-size:16px; color:var(--text-primary); }
-    .brand-sub{ color:var(--text-muted); font-size:12px; font-weight:500; }
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 24px; background:var(--bg-card);
+    border:1px solid var(--border); border-radius:var(--radius-lg);
+    margin-bottom:20px; flex-wrap:wrap; gap:12px;
+    box-shadow:var(--shadow-sm);
+  }
+  .brand{ display:flex; align-items:center; gap:12px; }
+  .brand-mark{
+    width:38px; height:38px; border-radius:var(--radius-sm);
+    background:linear-gradient(135deg, var(--accent), #2563EB);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono); font-weight:700; font-size:14px; color:#fff;
+  }
+  .brand-name{ font-weight:700; font-size:16px; color:var(--text-primary); }
+  .brand-sub{ color:var(--text-muted); font-size:12px; font-weight:500; }
 
-    .status-cluster{ display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
-    .conn-pill{
-      display:flex; align-items:center; gap:8px; padding:8px 14px;
-      border-radius:20px; background:var(--bg-subtle); border:1px solid var(--border);
-      font-size:12px; font-weight:600; color:var(--text-secondary);
-    }
-    .dot{ width:8px; height:8px; border-radius:50%; background:var(--text-muted); }
-    .dot.live{ background:var(--up); box-shadow:0 0 0 3px var(--up-light); }
-    .dot.err{ background:var(--down); box-shadow:0 0 0 3px var(--down-light); }
+  .status-cluster{ display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+  .conn-pill{
+    display:flex; align-items:center; gap:8px; padding:8px 14px;
+    border-radius:20px; background:var(--bg-subtle); border:1px solid var(--border);
+    font-size:12px; font-weight:600; color:var(--text-secondary);
+  }
+  .dot{ width:8px; height:8px; border-radius:50%; background:var(--text-muted); }
+  .dot.live{ background:var(--up); box-shadow:0 0 0 3px var(--up-light); }
+  .dot.err{ background:var(--down); box-shadow:0 0 0 3px var(--down-light); }
+  .dot.warn{ background:var(--amber); box-shadow:0 0 0 3px var(--amber-light); }
 
-    /* ---------- Layout ---------- */
-    .grid{ display:grid; grid-template-columns:360px 1fr; gap:20px; }
-    @media (max-width:900px){ .grid{ grid-template-columns:1fr; } }
+  .grid{ display:grid; grid-template-columns:360px 1fr; gap:20px; }
+  @media (max-width:900px){ .grid{ grid-template-columns:1fr; } }
 
-    .panel{
-      background:var(--bg-card); border:1px solid var(--border);
-      border-radius:var(--radius-lg); padding:20px;
-      box-shadow:var(--shadow-sm);
-    }
-    .panel + .panel{ margin-top:16px; }
-    .panel-title{
-      font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
-      color:var(--text-muted); margin:0 0 16px;
-      display:flex; justify-content:space-between; align-items:center;
-    }
+  .panel{
+    background:var(--bg-card); border:1px solid var(--border);
+    border-radius:var(--radius-lg); padding:20px;
+    box-shadow:var(--shadow-sm);
+  }
+  .panel + .panel{ margin-top:16px; }
+  .panel-title{
+    font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
+    color:var(--text-muted); margin:0 0 16px;
+    display:flex; justify-content:space-between; align-items:center;
+  }
 
-    label{ display:block; font-size:12px; font-weight:600; color:var(--text-secondary); margin:0 0 6px; }
-    .field{ margin-bottom:16px; }
-    .field:last-child{ margin-bottom:0; }
+  label{ display:block; font-size:12px; font-weight:600; color:var(--text-secondary); margin:0 0 6px; }
+  .field{ margin-bottom:16px; }
+  .field:last-child{ margin-bottom:0; }
 
-    input[type=text], input[type=password], input[type=number], select{
-      width:100%; background:var(--bg-input); border:1.5px solid var(--border);
-      color:var(--text-primary); padding:10px 12px; border-radius:var(--radius-sm);
-      font-family:var(--font-mono); font-size:13px; outline:none;
-      transition:border-color .15s, box-shadow .15s;
-    }
-    input:focus, select:focus{ border-color:var(--border-focus); box-shadow:0 0 0 3px var(--accent-light); }
-    select{ appearance:none; cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:36px; }
+  input[type=text], input[type=password], input[type=number], select{
+    width:100%; background:var(--bg-input); border:1.5px solid var(--border);
+    color:var(--text-primary); padding:10px 12px; border-radius:var(--radius-sm);
+    font-family:var(--font-mono); font-size:13px; outline:none;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  input:focus, select:focus{ border-color:var(--border-focus); box-shadow:0 0 0 3px var(--accent-light); }
+  select{ appearance:none; cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:36px; }
 
-    .strategy-tabs{ display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
-    .strategy-tab{
-      padding:8px 16px; border-radius:20px; border:1.5px solid var(--border);
-      background:var(--bg-card); color:var(--text-secondary); font-size:12px;
-      font-weight:600; cursor:pointer; transition:all .15s;
-    }
-    .strategy-tab:hover{ border-color:var(--accent); color:var(--accent); }
-    .strategy-tab.active{ border-color:var(--accent); color:#fff; background:var(--accent); }
+  .strategy-tabs{ display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+  .strategy-tab{
+    padding:8px 16px; border-radius:20px; border:1.5px solid var(--border);
+    background:var(--bg-card); color:var(--text-secondary); font-size:12px;
+    font-weight:600; cursor:pointer; transition:all .15s;
+  }
+  .strategy-tab:hover{ border-color:var(--accent); color:var(--accent); }
+  .strategy-tab.active{ border-color:var(--accent); color:#fff; background:var(--accent); }
 
-    .slider-row{ display:flex; align-items:center; gap:12px; }
-    input[type=range]{ flex:1; accent-color:var(--accent); height:6px; }
-    .slider-val{ font-family:var(--font-mono); font-size:14px; color:var(--accent); min-width:48px; text-align:right; font-weight:700; }
+  .slider-row{ display:flex; align-items:center; gap:12px; }
+  input[type=range]{ flex:1; accent-color:var(--accent); height:6px; }
+  .slider-val{ font-family:var(--font-mono); font-size:14px; color:var(--accent); min-width:48px; text-align:right; font-weight:700; }
 
-    .hint{ font-size:12px; color:var(--text-muted); margin-top:6px; line-height:1.5; }
+  .hint{ font-size:12px; color:var(--text-muted); margin-top:6px; line-height:1.5; }
 
-    .btn{
-      width:100%; padding:12px; border-radius:var(--radius-sm); border:none;
-      font-family:var(--font-ui); font-weight:700; font-size:13px; cursor:pointer;
-      transition:all .15s; letter-spacing:0.02em;
-    }
-    .btn:active{ transform:scale(0.98); }
-    .btn-start{ background:var(--up); color:#fff; box-shadow:0 2px 8px rgba(16,185,129,0.3); }
-    .btn-start:hover{ box-shadow:0 4px 14px rgba(16,185,129,0.4); }
-    .btn-stop{ background:var(--down); color:#fff; box-shadow:0 2px 8px rgba(239,68,68,0.3); }
-    .btn-stop:hover{ box-shadow:0 4px 14px rgba(239,68,68,0.4); }
-    .btn:disabled{ opacity:0.4; cursor:not-allowed; box-shadow:none; }
+  .btn{
+    width:100%; padding:12px; border-radius:var(--radius-sm); border:none;
+    font-family:var(--font-ui); font-weight:700; font-size:13px; cursor:pointer;
+    transition:all .15s; letter-spacing:0.02em;
+  }
+  .btn:active{ transform:scale(0.98); }
+  .btn-start{ background:var(--up); color:#fff; box-shadow:0 2px 8px rgba(16,185,129,0.3); }
+  .btn-start:hover{ box-shadow:0 4px 14px rgba(16,185,129,0.4); }
+  .btn-stop{ background:var(--down); color:#fff; box-shadow:0 2px 8px rgba(239,68,68,0.3); }
+  .btn-stop:hover{ box-shadow:0 4px 14px rgba(239,68,68,0.4); }
+  .btn:disabled{ opacity:0.4; cursor:not-allowed; box-shadow:none; }
 
-    /* ---------- Digit histogram ---------- */
-    .digit-grid{ display:grid; grid-template-columns:repeat(10,1fr); gap:8px; align-items:end; height:140px; margin:8px 0 4px; }
-    .digit-col{ display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
-    .digit-bar{ width:100%; border-radius:4px 4px 0 0; transition:height .3s ease; min-height:4px; }
-    .digit-bar.even{ background:linear-gradient(to top, #10B981, #34D399); }
-    .digit-bar.odd{ background:linear-gradient(to top, #EF4444, #F87171); }
-    .digit-label{ font-family:var(--font-mono); font-size:11px; color:var(--text-muted); margin-top:8px; font-weight:600; }
-    .digit-pct{ font-family:var(--font-mono); font-size:10px; color:var(--text-muted); margin-bottom:6px; font-weight:600; }
+  .digit-grid{ display:grid; grid-template-columns:repeat(10,1fr); gap:8px; align-items:end; height:140px; margin:8px 0 4px; }
+  .digit-col{ display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
+  .digit-bar{ width:100%; border-radius:4px 4px 0 0; transition:height .3s ease; min-height:4px; }
+  .digit-bar.even{ background:linear-gradient(to top, #10B981, #34D399); }
+  .digit-bar.odd{ background:linear-gradient(to top, #EF4444, #F87171); }
+  .digit-label{ font-family:var(--font-mono); font-size:11px; color:var(--text-muted); margin-top:8px; font-weight:600; }
+  .digit-pct{ font-family:var(--font-mono); font-size:10px; color:var(--text-muted); margin-bottom:6px; font-weight:600; }
 
-    .tick-tape{
-      display:flex; gap:6px; overflow-x:auto; padding:12px 0; scrollbar-width:none;
-    }
-    .tick-tape::-webkit-scrollbar{ display:none; }
-    .tick-chip{
-      flex:0 0 auto; width:30px; height:30px; border-radius:6px;
-      display:flex; align-items:center; justify-content:center;
-      font-family:var(--font-mono); font-size:12px; font-weight:700;
-      background:var(--bg-subtle); color:var(--text-secondary); border:1.5px solid var(--border);
-    }
-    .tick-chip.even{ color:var(--up); border-color:var(--up); background:var(--up-light); }
-    .tick-chip.odd{ color:var(--down); border-color:var(--down); background:var(--down-light); }
+  .tick-tape{
+    display:flex; gap:6px; overflow-x:auto; padding:12px 0; scrollbar-width:none;
+  }
+  .tick-tape::-webkit-scrollbar{ display:none; }
+  .tick-chip{
+    flex:0 0 auto; width:30px; height:30px; border-radius:6px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono); font-size:12px; font-weight:700;
+    background:var(--bg-subtle); color:var(--text-secondary); border:1.5px solid var(--border);
+  }
+  .tick-chip.even{ color:var(--up); border-color:var(--up); background:var(--up-light); }
+  .tick-chip.odd{ color:var(--down); border-color:var(--down); background:var(--down-light); }
 
-    .signal-banner{
-      display:flex; align-items:center; gap:10px; padding:14px 18px;
-      border-radius:var(--radius-sm); margin-bottom:14px; font-size:14px;
-      background:var(--bg-subtle); border:1.5px solid var(--border); color:var(--text-secondary);
-      font-weight:500;
-    }
-    .signal-banner.armed{ border-color:var(--amber); background:var(--amber-light); color:#92400E; }
-    .signal-banner.fired-up{ border-color:var(--up); background:var(--up-light); color:#065F46; }
-    .signal-banner.fired-down{ border-color:var(--down); background:var(--down-light); color:#991B1B; }
+  .signal-banner{
+    display:flex; align-items:center; gap:10px; padding:14px 18px;
+    border-radius:var(--radius-sm); margin-bottom:14px; font-size:14px;
+    background:var(--bg-subtle); border:1.5px solid var(--border); color:var(--text-secondary);
+    font-weight:500;
+  }
+  .signal-banner.armed{ border-color:var(--amber); background:var(--amber-light); color:#92400E; }
+  .signal-banner.fired-up{ border-color:var(--up); background:var(--up-light); color:#065F46; }
+  .signal-banner.fired-down{ border-color:var(--down); background:var(--down-light); color:#991B1B; }
 
-    /* ---------- Metrics ---------- */
-    .metric-row {
-      display: flex; justify-content: space-between; align-items: center;
-      padding:10px 0; border-bottom:1px solid var(--border);
-      font-size:13px;
-    }
-    .metric-row:last-child { border-bottom:none; }
-    .metric-label { color:var(--text-secondary); font-weight:500; }
-    .metric-value { color:var(--accent); font-weight:700; font-family:var(--font-mono); }
-    .metric-value.amber { color:var(--amber); }
-    .metric-value.up { color:var(--up); }
+  .metric-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding:10px 0; border-bottom:1px solid var(--border);
+    font-size:13px;
+  }
+  .metric-row:last-child { border-bottom:none; }
+  .metric-label { color:var(--text-secondary); font-weight:500; }
+  .metric-value { color:var(--accent); font-weight:700; font-family:var(--font-mono); }
+  .metric-value.amber { color:var(--amber); }
+  .metric-value.up { color:var(--up); }
 
-    .badge {
-      display:inline-block; padding:3px 10px; border-radius:20px;
-      font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
-    }
-    .badge.high { background:var(--up-light); color:var(--up); }
-    .badge.medium { background:var(--amber-light); color:var(--amber); }
-    .badge.low { background:var(--down-light); color:var(--down); }
+  .badge {
+    display:inline-block; padding:3px 10px; border-radius:20px;
+    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
+  }
+  .badge.high { background:var(--up-light); color:var(--up); }
+  .badge.medium { background:var(--amber-light); color:var(--amber); }
+  .badge.low { background:var(--down-light); color:var(--down); }
 
-    .warning-box{
-      background:var(--amber-light); border:1.5px solid var(--amber); color:#92400E;
-      border-radius:var(--radius-sm); padding:14px 18px; font-size:13px; line-height:1.6;
-      margin-bottom:20px; font-weight:500;
-    }
-    .warning-box b{ color:var(--amber); font-weight:700; }
+  .warning-box{
+    background:var(--amber-light); border:1.5px solid var(--amber); color:#92400E;
+    border-radius:var(--radius-sm); padding:14px 18px; font-size:13px; line-height:1.6;
+    margin-bottom:20px; font-weight:500;
+  }
+  .warning-box b{ color:var(--amber); font-weight:700; }
 
-    .footer-note{ color:var(--text-muted); font-size:12px; text-align:center; margin-top:32px; line-height:1.7; font-weight:500; }
-  </style>
+  .error-box{
+    background:var(--down-light); border:1.5px solid var(--down); color:#991B1B;
+    border-radius:var(--radius-sm); padding:14px 18px; font-size:13px; line-height:1.6;
+    margin-bottom:20px; font-weight:500; display:none;
+  }
+  .error-box b{ color:var(--down); font-weight:700; }
+
+  .footer-note{ color:var(--text-muted); font-size:12px; text-align:center; margin-top:32px; line-height:1.7; font-weight:500; }
+</style>
 </head>
 <body>
 <div class="app">
@@ -213,8 +216,9 @@
     <b>Analysis tool only:</b> This reads live public price data and shows a statistical digit-frequency signal — it does not place trades and does not need your Deriv login or any account access. When a signal arms, you set up and place the trade yourself on your own Deriv account. It does not guarantee profit — synthetic index outcomes are randomised and past digit patterns don't predict future ones.
   </div>
 
+  <div class="error-box" id="errorBox"></div>
+
   <div class="grid">
-    <!-- LEFT: CONFIG -->
     <div>
       <div class="panel">
         <div class="panel-title">Market</div>
@@ -248,8 +252,8 @@
         <div class="field">
           <label>Confidence threshold</label>
           <div class="slider-row">
-            <input type="range" id="confSlider" min="52" max="85" value="65">
-            <div class="slider-val" id="confVal">65%</div>
+            <input type="range" id="confSlider" min="52" max="85" value="62">
+            <div class="slider-val" id="confVal">62%</div>
           </div>
           <div class="hint">Higher = fewer, more selective signals. Lower = more frequent signals on smaller edges.</div>
         </div>
@@ -257,6 +261,7 @@
         <div class="field">
           <label for="lookback">Tick lookback window</label>
           <input type="number" id="lookback" value="120" min="30" max="1000" step="10">
+          <div class="hint">Needs at least 30 ticks before signals appear. 100–200 is recommended.</div>
         </div>
       </div>
 
@@ -266,7 +271,6 @@
       </div>
     </div>
 
-    <!-- RIGHT: LIVE -->
     <div>
       <div class="panel">
         <div class="panel-title">
@@ -315,18 +319,22 @@
 
 <script>
 (function(){
+  // ---------------- CONFIG ----------------
+  // Your registered Deriv app ID (OAuth, Trade scope)
+  const APP_ID = '34nCrHkce65Z7N2Yy987vr';
+
   // ---------------- State ----------------
   const state = {
-    ws:null,
-    running:false,
-    ticks:[],
-    strategy:'evenodd',
-    lastSignal:null,
-    signalHoldUntil:0,
-    signalHoldMs:7000,
+    ws: null,
+    running: false,
+    ticks: [],
+    strategy: 'evenodd',
+    lastSignal: null,
+    signalHoldUntil: 0,
+    signalHoldMs: 7000,
     tickHistory: [],
-    lastDigitCounts: Array(10).fill(0),
-    biasConfidence: 0,
+    manualThresholdUntil: 0,
+    reconnectTimer: null,
   };
 
   const els = {
@@ -349,6 +357,7 @@
     biasConfidence: document.getElementById('biasConfidence'),
     recThreshold: document.getElementById('recThreshold'),
     digitStability: document.getElementById('digitStability'),
+    errorBox: document.getElementById('errorBox'),
   };
 
   // ---------------- Strategy extra fields ----------------
@@ -385,36 +394,56 @@
 
   els.confSlider.addEventListener('input', ()=>{
     els.confVal.textContent = els.confSlider.value + '%';
+    state.manualThresholdUntil = Date.now() + 8000;
     evaluateSignal();
   });
 
-  // ---------------- Public tick feed ----------------
-  const PUBLIC_APP_ID = '1089';
-
-  function connectPublicFeed(){
+  // ---------------- WebSocket connection ----------------
+  function connect(){
+    showError('');
     setConn('connecting', 'Connecting…');
-    state.ws = new WebSocket(`wss://ws.derivws.com/websockets/v3?app_id=${PUBLIC_APP_ID}&l=EN`);
+
+    // Build the WS URL with your app_id
+    const url = `wss://ws.derivws.com/websockets/v3?app_id=${APP_ID}&l=EN`;
+    state.ws = new WebSocket(url);
 
     state.ws.onopen = ()=>{
-      setConn('live', 'Connected (public feed)');
+      setConn('live', 'Connected');
       subscribeTicks();
     };
 
     state.ws.onmessage = (msg)=>{
-      const data = JSON.parse(msg.data);
-      if(data.msg_type === 'tick' && !data.error){
+      let data;
+      try { data = JSON.parse(msg.data); } catch(e){ return; }
+
+      // Handle errors from the API
+      if(data.error){
+        console.error('Deriv API error:', data.error);
+        showError(`Deriv API error: ${data.error.message || data.error.code}`);
+        setConn('err', 'API error');
+        return;
+      }
+
+      if(data.msg_type === 'tick' && data.tick){
         onTick(data.tick);
       }
     };
 
     state.ws.onerror = ()=>{
+      showError('WebSocket connection error. Check your internet and try again.');
       setConn('err', 'Connection error');
     };
 
     state.ws.onclose = ()=>{
       if(state.running){
+        setConn('warn', 'Reconnecting…');
+        // Auto-reconnect after 2 seconds
+        clearTimeout(state.reconnectTimer);
+        state.reconnectTimer = setTimeout(()=>{
+          if(state.running) connect();
+        }, 2000);
+      } else {
         setConn('idle', 'Disconnected');
-        stopAnalysis();
       }
     };
   }
@@ -427,22 +456,42 @@
 
   function setConn(mode, text){
     els.connText.textContent = text;
-    els.connDot.className = 'dot' + (mode==='live' ? ' live' : mode==='err' ? ' err' : '');
+    els.connDot.className = 'dot' +
+      (mode === 'live' ? ' live' :
+       mode === 'err' ? ' err' :
+       mode === 'warn' ? ' warn' : '');
+  }
+
+  function showError(msg){
+    if(msg){
+      els.errorBox.textContent = msg;
+      els.errorBox.style.display = 'block';
+    } else {
+      els.errorBox.style.display = 'none';
+      els.errorBox.textContent = '';
+    }
   }
 
   function subscribeTicks(){
+    // Clear old subscription first (safe to send even if none active)
+    send({ forget_all: 'ticks' });
+
+    // Reset state for the new symbol
     state.ticks = [];
     state.tickHistory = [];
-    state.lastDigitCounts = Array(10).fill(0);
-    state.biasConfidence = 0;
+    state.lastSignal = null;
+    state.signalHoldUntil = 0;
+
     renderTickUI();
     updateAccuracyMetrics();
+    setSignal('idle', 'Waiting for enough tick data to evaluate a signal…', '');
+
+    // Subscribe to the selected symbol
     send({ ticks: els.symbolSelect.value, subscribe: 1 });
   }
 
   els.symbolSelect.addEventListener('change', ()=>{
     if(state.running){
-      send({ forget_all: 'ticks' });
       subscribeTicks();
     }
   });
@@ -456,14 +505,14 @@
 
   function onTick(tick){
     const digit = lastDigitFromQuote(tick.quote, tick.pip_size);
+    if(isNaN(digit)) return;
+
     state.ticks.push(digit);
     const maxLen = Math.max(30, Number(els.lookback.value) || 120);
     if(state.ticks.length > maxLen) state.ticks.shift();
 
     state.tickHistory.push(digit);
     if(state.tickHistory.length > 1000) state.tickHistory.shift();
-
-    state.lastDigitCounts[digit]++;
 
     renderTickUI();
     updateAccuracyMetrics();
@@ -482,7 +531,7 @@
       const col = document.createElement('div');
       col.className = 'digit-col';
       col.innerHTML = `
-        <div class="digit-pct">${state.ticks.length? pct.toFixed(0)+'%':''}</div>
+        <div class="digit-pct">${state.ticks.length ? pct.toFixed(0)+'%' : ''}</div>
         <div class="digit-bar ${d%2===0?'even':'odd'}" style="height:${Math.max(3,pct)}%;"></div>
         <div class="digit-label">${d}</div>`;
       els.digitGrid.appendChild(col);
@@ -498,7 +547,7 @@
     els.tickTape.scrollLeft = els.tickTape.scrollWidth;
   }
 
-  // ---------------- Enhanced accuracy metrics ----------------
+  // ---------------- Statistical metrics ----------------
   function updateAccuracyMetrics(){
     const n = state.ticks.length;
     if(n < 10){
@@ -551,17 +600,14 @@
     els.recThreshold.textContent = recThresh + '%';
     els.digitStability.textContent = (stability * 100).toFixed(0) + '% change';
 
-    if(!els.confSlider.dataset.manual || (Date.now() - Number(els.confSlider.dataset.manual)) > 5000){
+    // Auto-adjust the slider if user hasn't touched it recently
+    if(Date.now() > state.manualThresholdUntil){
       if(Number(els.confSlider.value) !== recThresh){
         els.confSlider.value = recThresh;
         els.confVal.textContent = recThresh + '%';
       }
     }
   }
-
-  els.confSlider.addEventListener('input', ()=>{
-    els.confSlider.dataset.manual = Date.now();
-  });
 
   // ---------------- Signal engine ----------------
   function evaluateSignal(){
@@ -577,6 +623,7 @@
     const counts = Array(10).fill(0);
     state.ticks.forEach(d=>counts[d]++);
 
+    // Compute chi-square for adaptive threshold
     const expected = n / 10;
     let chiSq = 0;
     for(let d=0; d<10; d++){
@@ -591,10 +638,10 @@
       const evenPct = evenCount/n;
       const oddPct = 1-evenPct;
       if(evenPct >= threshold){
-        state.lastSignal = { side:'ODD', reason:`Even digits at ${(evenPct*100).toFixed(1)}% — Odd is underrepresented (chi²=${chiSq.toFixed(1)})` };
+        state.lastSignal = { side:'ODD', reason:`Even digits at ${(evenPct*100).toFixed(1)}% — Odd is underrepresented (χ²=${chiSq.toFixed(1)})` };
         setSignal('armed', 'Signal: trade ODD', state.lastSignal.reason);
       } else if(oddPct >= threshold){
-        state.lastSignal = { side:'EVEN', reason:`Odd digits at ${(oddPct*100).toFixed(1)}% — Even is underrepresented (chi²=${chiSq.toFixed(1)})` };
+        state.lastSignal = { side:'EVEN', reason:`Odd digits at ${(oddPct*100).toFixed(1)}% — Even is underrepresented (χ²=${chiSq.toFixed(1)})` };
         setSignal('armed', 'Signal: trade EVEN', state.lastSignal.reason);
       } else {
         state.lastSignal = null;
@@ -627,17 +674,18 @@
         return;
       }
 
-      let minD=0; for(let d=1;d<10;d++) if(counts[d]<counts[minD]) minD=d;
+      let minD = 0;
+      for(let d=1; d<10; d++) if(counts[d] < counts[minD]) minD = d;
       const minPct = counts[minD]/n;
       const expectedPct = 1/10;
-      
+
       const deviation = expectedPct - minPct;
       if(deviation >= 0.025 || (chiSq > 12 && minPct < 0.08)){
         const isNewSignal = !state.lastSignal || state.lastSignal.barrier !== minD;
-        state.lastSignal = { 
-          side:`DIFFERS ${minD}`, 
-          barrier:minD, 
-          reason:`Digit ${minD} underrepresented at ${(minPct*100).toFixed(1)}% (expected 10%) — chi²=${chiSq.toFixed(1)}` 
+        state.lastSignal = {
+          side:`DIFFERS ${minD}`,
+          barrier:minD,
+          reason:`Digit ${minD} underrepresented at ${(minPct*100).toFixed(1)}% (expected 10%) — χ²=${chiSq.toFixed(1)}`
         };
         if(isNewSignal) state.signalHoldUntil = now + state.signalHoldMs;
         const remainingMs = Math.max(0, state.signalHoldUntil - now);
@@ -652,7 +700,7 @@
   }
 
   function setSignal(mode, headline, detail){
-    els.signalBanner.className = 'signal-banner' + (mode==='armed' ? ' armed' : '');
+    els.signalBanner.className = 'signal-banner' + (mode === 'armed' ? ' armed' : '');
     els.signalBanner.textContent = headline;
     els.signalDetail.textContent = detail;
   }
@@ -662,24 +710,38 @@
     state.running = true;
     els.btnStart.style.display = 'none';
     els.btnStop.style.display = 'block';
-    connectPublicFeed();
+    connect();
   }
 
   function stopAnalysis(){
     state.running = false;
     els.btnStart.style.display = 'block';
     els.btnStop.style.display = 'none';
+    clearTimeout(state.reconnectTimer);
     if(state.ws){
+      // Remove handlers before closing to avoid reconnect loop
+      state.ws.onopen = null;
+      state.ws.onmessage = null;
+      state.ws.onerror = null;
       state.ws.onclose = null;
-      state.ws.close();
+      try { state.ws.close(); } catch(e){}
       state.ws = null;
     }
     setConn('idle', 'Disconnected');
+    showError('');
+    // Reset live panels
+    state.ticks = [];
+    state.tickHistory = [];
+    state.lastSignal = null;
+    renderTickUI();
+    updateAccuracyMetrics();
+    setSignal('idle', 'Stopped. Press "Start analysis" to begin.', '');
   }
 
   els.btnStart.addEventListener('click', startAnalysis);
   els.btnStop.addEventListener('click', stopAnalysis);
 
+  // ---------------- Initial render ----------------
   renderTickUI();
   updateAccuracyMetrics();
 })();
